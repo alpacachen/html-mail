@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import HtmlMail from "./pages/HtmlMail.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import HtmlMail from "./pages/HtmlMail";
+import GithubCallback from "./pages/GithubCallback";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/html-mail" element={<HtmlMail />} />
+        <Route path="/auth/github/callback" element={<GithubCallback />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

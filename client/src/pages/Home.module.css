@@ -1,0 +1,32 @@
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.link {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.githubButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #24292e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.githubButton:hover {
+  background-color: #1a1f23;
+} 
