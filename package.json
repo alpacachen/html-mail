@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "concurrently \"cd server && npm run start:dev\" \"cd client && npm run dev\""
+    "prepare": "concurrently \"cd server && npm install\" \"cd client && npm install\"",
+    "dev": "concurrently \"cd server && npm run start:dev\" \"cd client && npm run dev\"",
+    "build": "concurrently \"cd server && npm run build\" \"cd client && npm run build\""
   },
   "author": "",
   "license": "ISC",
