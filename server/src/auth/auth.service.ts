@@ -1,14 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
+import { GithubUser, JwtPayload } from './types';
 
 @Injectable()
 export class AuthService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private jwtService: JwtService,
+  ) {}
 
   async githubAuth(code: string) {
     try {
-      // 1. 使用 code 获取 access token
+      // 1. 获取 access token
+
       const tokenResponse = await axios.post(
         'https://github.com/login/oauth/access_token',
         {
@@ -28,20 +34,52 @@ export class AuthService {
         throw new Error('Failed to get access token');
       }
 
-      // 2. 使用 access token 获取用户信息
-      const userResponse = await axios.get('https://api.github.com/user', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const userResponse = await axios.get<GithubUser>(
+        'https://api.github.com/user',
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+      );
+
+      const user = userResponse.data;
+
+      // 3. 生成 JWT token
+      const jwtToken = await this.generateToken(user);
 
       return {
-        accessToken,
-        user: userResponse.data,
+        token: jwtToken,
+        user: {
+          id: user.id,
+          login: user.login,
+          name: user.name,
+          email: user.email,
+          avatarUrl: user.avatar_url,
+        },
       };
     } catch (error) {
       console.error('GitHub auth error:', error);
       throw new Error('GitHub authentication failed');
+    }
+  }
+
+  private async generateToken(user: GithubUser) {
+    const payload: JwtPayload = {
+      sub: user.id,
+      username: user.login,
+      email: user.email,
+    };
+
+    return this.jwtService.sign(payload);
+  }
+
+  async verifyToken(token: string) {
+    try {
+      const payload = await this.jwtService.verify(token);
+      return payload;
+    } catch {
+      throw new Error('Invalid token');
     }
   }
 }

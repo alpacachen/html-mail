@@ -29,4 +29,29 @@
 
 .githubButton:hover {
   background-color: #1a1f23;
+}
+
+.userInfo {
+  margin-top: 16px;
+  padding: 12px;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  border: 1px solid #e1e4e8;
+}
+
+.expiry {
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.warning {
+  color: #f44336;
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.expiry:has(span.warning) {
+  color: #f44336;
+  font-weight: 500;
 } 

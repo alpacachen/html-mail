@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { fetchWithAuth } from "../utils/api";
 import styles from "./HtmlMail.module.css";
 
 const HtmlMail: React.FC = () => {
@@ -7,6 +8,7 @@ const HtmlMail: React.FC = () => {
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSendEmail = async () => {
     if (!email || !content) {
@@ -18,7 +20,7 @@ const HtmlMail: React.FC = () => {
       setSending(true);
       setMessage("");
 
-      const response = await fetch("/api/send-email", {
+      const response = await fetchWithAuth("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,10 +37,14 @@ const HtmlMail: React.FC = () => {
 
       await response.json();
       setMessage("邮件发送成功！");
-      // 清空表单
       setEmail("");
       setContent("");
-    } catch (error) {
+    } catch (error: unknown) {
+      console.log("error", error);
+      if (error instanceof Error && error.message === "Unauthorized") {
+        navigate("/");
+        return;
+      }
       setMessage("邮件发送失败，请重试");
       console.error("发送邮件出错:", error);
     } finally {
