@@ -1,0 +1,13 @@
+{
+  "name": "html-mail",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "dev": "concurrently \"cd server && npm run start:dev\" \"cd client && npm run dev\""
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
