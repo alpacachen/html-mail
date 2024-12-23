@@ -48,7 +48,6 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
         source: "client/dist/*, server/dist/*, server/package.json"
-        destination: "/var/www/html-mail"
         strip_components: 1
 
     # 重启服务
