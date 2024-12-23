@@ -1,69 +1,71 @@
-import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import styles from './Home.module.css'
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import styles from "./Home.module.css";
 
 interface User {
-  name: string
-  login: string
+  name: string;
+  login: string;
 }
 
 const Home: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null)
-  const [expiresIn, setExpiresIn] = useState<string>('')
+  const [user, setUser] = useState<User | null>(null);
+  const [expiresIn, setExpiresIn] = useState<string>("");
 
   useEffect(() => {
     const updateExpiryTime = () => {
-      const token = localStorage.getItem('token')
-      if (!token) return
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-      const base64Url = token.split('.')[1]
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-      const payload = JSON.parse(window.atob(base64))
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(window.atob(base64));
 
       if (payload.exp) {
-        const expirationTime = new Date(payload.exp * 1000)
-        const now = new Date()
-        const diffInSeconds = Math.floor((expirationTime.getTime() - now.getTime()) / 1000)
+        const expirationTime = new Date(payload.exp * 1000);
+        const now = new Date();
+        const diffInSeconds = Math.floor(
+          (expirationTime.getTime() - now.getTime()) / 1000
+        );
 
         if (diffInSeconds <= 0) {
           // Token 已过期，清除登录状态
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-          setUser(null)
-          setExpiresIn('')
-          return
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+          setExpiresIn("");
+          return;
         }
 
         if (diffInSeconds < 60) {
-          setExpiresIn(`${diffInSeconds}秒`)
+          setExpiresIn(`${diffInSeconds}秒`);
         } else {
-          const minutes = Math.floor(diffInSeconds / 60)
-          const seconds = diffInSeconds % 60
-          setExpiresIn(`${minutes}分${seconds}秒`)
+          const minutes = Math.floor(diffInSeconds / 60);
+          const seconds = diffInSeconds % 60;
+          setExpiresIn(`${minutes}分${seconds}秒`);
         }
       }
-    }
+    };
 
-    const userStr = localStorage.getItem('user')
+    const userStr = localStorage.getItem("user");
     if (userStr) {
-      setUser(JSON.parse(userStr))
+      setUser(JSON.parse(userStr));
     }
 
     // 初始更新
-    updateExpiryTime()
+    updateExpiryTime();
     // 每秒更新一次
-    const timer = setInterval(updateExpiryTime, 1000)
+    const timer = setInterval(updateExpiryTime, 1000);
 
-    return () => clearInterval(timer)
-  }, [])
+    return () => clearInterval(timer);
+  }, []);
 
   const handleGithubLogin = () => {
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
     const redirectUri = encodeURIComponent(
-      'http://localhost:5173/auth/github/callback'
-    )
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`
-  }
+      `${window.location.origin}/auth/github/callback`
+    );
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
+  };
 
   return (
     <div>
@@ -77,7 +79,9 @@ const Home: React.FC = () => {
             <p>欢迎回来, {user.name || user.login}</p>
             <p className={styles.expiry}>
               登录状态将在{expiresIn}后过期
-              {expiresIn.includes('秒') && <span className={styles.warning}>!</span>}
+              {expiresIn.includes("秒") && (
+                <span className={styles.warning}>!</span>
+              )}
             </p>
           </div>
         ) : (
@@ -87,7 +91,7 @@ const Home: React.FC = () => {
         )}
       </nav>
     </div>
-  )
-}
+  );
+};
 
-export default Home 
+export default Home;
