@@ -32,7 +32,7 @@ jobs:
         npm install
         npm run build
         touch .env
-        echo API_ENDPOINT="chenxiang" >> .env
+        echo API_ENDPOINT="hahahha" >> .env
 
     # 部署client到服务器
     - name: scp client
@@ -54,7 +54,7 @@ jobs:
         src: "server/dist/*"
         dist: "server"
 
-    # 部署server到服务器
+    # 部署env到服务器
     - name: scp .env
       uses: youxingz/sshpass-scp-action@v3
       with:
