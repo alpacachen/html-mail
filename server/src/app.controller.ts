@@ -1,4 +1,11 @@
-import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Get,
+  BadRequestException,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { AuthGuard } from './auth/auth.guard';
 
@@ -18,8 +25,19 @@ export class AppController {
     @Body('content') content: string,
   ) {
     if (!email) {
-      throw new Error('Email is required');
+      throw new BadRequestException('Email is required');
     }
+
+    // 邮箱格式验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new BadRequestException('Invalid email format');
+    }
+
+    if (!content) {
+      throw new BadRequestException('Content is required');
+    }
+
     return await this.appService.sendTestEmail(email, content);
   }
 }
