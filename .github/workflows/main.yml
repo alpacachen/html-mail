@@ -86,7 +86,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
-        script: |
+        run: |
           cd /root/server
           npm install --production
           pm2 restart 0
