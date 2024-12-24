@@ -31,14 +31,8 @@ jobs:
       run: |
         npm install
         npm run build
-      env:
-        SMTP_HOST: ${{ secrets.SMTP_HOST }}
-        SMTP_PORT: ${{ secrets.SMTP_PORT }}
-        SMTP_USER: ${{ secrets.SMTP_USER }}
-        SMTP_PASS: ${{ secrets.SMTP_PASS }}
-        GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID }}
-        GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        touch .env
+        echo API_ENDPOINT="chenxiang" >> .env
 
     # 部署client到服务器
     - name: scp client
@@ -58,6 +52,16 @@ jobs:
         user: ${{ secrets.SERVER_USERNAME }}
         pass: ${{ secrets.SERVER_PASSWORD }}
         src: "server/dist/*"
+        dist: "server"
+
+    # 部署server到服务器
+    - name: scp .env
+      uses: youxingz/sshpass-scp-action@v3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        user: ${{ secrets.SERVER_USERNAME }}
+        pass: ${{ secrets.SERVER_PASSWORD }}
+        src: "server/.env"
         dist: "server"
 
     # 重启服务
