@@ -23,7 +23,7 @@ jobs:
         npm install
         npm run build
       env:
-        VITE_GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID }}
+        VITE_GITHUB_CLIENT_ID: ${{ secrets.GIT_OAUTH_CLIENT_ID }}
 
     # 构建服务端
     - name: Build Server
