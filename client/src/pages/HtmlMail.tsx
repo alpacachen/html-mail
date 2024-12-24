@@ -17,12 +17,14 @@ const HtmlMail: React.FC = () => {
   React.useEffect(() => {
     form.setFieldsValue({
       content: defaultHtmlTemplate,
+      subject: "测试邮件",
     });
   }, [form]);
 
   const handleSendEmail = async (values: {
     email: string;
     content: string;
+    subject: string;
   }) => {
     try {
       setSending(true);
@@ -94,6 +96,14 @@ const HtmlMail: React.FC = () => {
             ]}
           >
             <Input placeholder="请输入收件人邮箱" />
+          </Form.Item>
+
+          <Form.Item
+            label="邮件主题"
+            name="subject"
+            rules={[{ required: true, message: "请输入邮件主题" }]}
+          >
+            <Input placeholder="请输入邮件主题" />
           </Form.Item>
 
           <Form.Item

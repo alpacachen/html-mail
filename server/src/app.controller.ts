@@ -23,21 +23,14 @@ export class AppController {
   async sendEmail(
     @Body('email') email: string,
     @Body('content') content: string,
+    @Body('subject') subject: string,
   ) {
     if (!email) {
       throw new BadRequestException('Email is required');
     }
-
-    // 邮箱格式验证
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      throw new BadRequestException('Invalid email format');
+    if (!subject) {
+      throw new BadRequestException('Subject is required');
     }
-
-    if (!content) {
-      throw new BadRequestException('Content is required');
-    }
-
-    return await this.appService.sendTestEmail(email, content);
+    return await this.appService.sendTestEmail(email, content, subject);
   }
 }
