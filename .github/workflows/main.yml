@@ -81,12 +81,12 @@ jobs:
 
     # 重启服务
     - name: Restart Application
-      uses: appleboy/ssh-action@master
+      uses: matheusvanzan/sshpass-action@v1
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USERNAME }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        password: ${{ secrets.SERVER_PASSWORD }}
         script: |
-          cd /var/www/html-mail
+          cd /root/server
           npm install --production
-          pm2 restart html-mail || pm2 start dist/main.js --name html-mail 
+          pm2 restart 0
