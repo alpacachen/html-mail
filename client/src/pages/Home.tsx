@@ -60,7 +60,7 @@ const Home: React.FC = () => {
   }, []);
 
   const handleGithubLogin = () => {
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+    const clientId = 'Ov23liTznPyWE9sBhb0W'
     const redirectUri = encodeURIComponent(
       `${window.location.origin}/auth/github/callback`
     );

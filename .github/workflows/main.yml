@@ -32,8 +32,13 @@ jobs:
         npm install
         npm run build
         touch .env
-        echo API_ENDPOINT="hahahha" >> .env
-
+        echo GIT_OAUTH_CLIENT_ID="Ov23liTznPyWE9sBhb0W" >> .env
+        echo GIT_OAUTH_CLIENT_SECRET="3187041541fc31cdd137d933b98074098400e9c0" >> .env
+        echo JWT_SECRET="your-super-secret-key" >> .env
+        echo SMTP_HOST="smtp.qq.com" >> .env
+        echo SMTP_PORT="465" >> .env
+        echo SMTP_USER="302681871@qq.com" >> .env
+        echo SMTP_PASS="jpaawbfwispvbjca" >> .env
     # 部署client到服务器
     - name: scp client
       uses: youxingz/sshpass-scp-action@v3
