@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import styles from "./Home.module.css";
+import { Card, Button, Typography, Space, Tag } from "antd";
+import {
+  GithubOutlined,
+  MailOutlined,
+  ClockCircleOutlined,
+  WarningOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 interface User {
   name: string;
@@ -28,7 +36,6 @@ const Home: React.FC = () => {
         );
 
         if (diffInSeconds <= 0) {
-          // Token 已过期，清除登录状态
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           setUser(null);
@@ -51,16 +58,14 @@ const Home: React.FC = () => {
       setUser(JSON.parse(userStr));
     }
 
-    // 初始更新
     updateExpiryTime();
-    // 每秒更新一次
     const timer = setInterval(updateExpiryTime, 1000);
 
     return () => clearInterval(timer);
   }, []);
 
   const handleGithubLogin = () => {
-    const clientId = 'Ov23liTznPyWE9sBhb0W'
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
     const redirectUri = encodeURIComponent(
       `${window.location.origin}/auth/github/callback`
     );
@@ -69,27 +74,67 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <h1>工具箱</h1>
-      <nav className={styles.nav}>
-        <Link to="/html-mail" className={styles.link}>
-          HTML邮件工具
-        </Link>
-        {user ? (
-          <div className={styles.userInfo}>
-            <p>欢迎回来, {user.name || user.login}</p>
-            <p className={styles.expiry}>
-              登录状态将在{expiresIn}后过期
-              {expiresIn.includes("秒") && (
-                <span className={styles.warning}>!</span>
-              )}
-            </p>
-          </div>
-        ) : (
-          <button onClick={handleGithubLogin} className={styles.githubButton}>
-            使用 GitHub 登录
-          </button>
-        )}
-      </nav>
+      <Card style={{ width: "100%", maxWidth: "800px" }}>
+        <Title level={2} style={{ textAlign: "center", marginBottom: "24px" }}>
+          邮件工具箱
+        </Title>
+
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          {user ? (
+            <Card
+              type="inner"
+              title="登录状态"
+              extra={
+                <Tag
+                  color={expiresIn.includes("秒") ? "error" : "processing"}
+                  icon={
+                    expiresIn.includes("秒") ? (
+                      <WarningOutlined />
+                    ) : (
+                      <ClockCircleOutlined />
+                    )
+                  }
+                >
+                  {expiresIn}后过期
+                </Tag>
+              }
+            >
+              <Space direction="vertical">
+                <Text>欢迎回来, {user.name || user.login}</Text>
+                <Link to="/html-mail">
+                  <Button type="primary" icon={<MailOutlined />} block>
+                    使用 HTML 邮件工具
+                  </Button>
+                </Link>
+              </Space>
+            </Card>
+          ) : (
+            <Card type="inner" title="未登录">
+              <Space direction="vertical" style={{ width: "100%" }}>
+                <Text type="secondary">
+                  请使用 GitHub 账号登录以使用邮件工具
+                </Text>
+                <Button
+                  type="primary"
+                  icon={<GithubOutlined />}
+                  onClick={handleGithubLogin}
+                  block
+                >
+                  GitHub 登录
+                </Button>
+              </Space>
+            </Card>
+          )}
+
+          <Card type="inner" title="功能介绍">
+            <Space direction="vertical">
+              <Text>• 支持发送 HTML 格式的邮件</Text>
+              <Text>• 使用 GitHub 账号快速登录</Text>
+              <Text>• 简单易用的界面设计</Text>
+            </Space>
+          </Card>
+        </Space>
+      </Card>
     </div>
   );
 };
