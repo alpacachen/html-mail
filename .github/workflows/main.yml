@@ -29,8 +29,8 @@ jobs:
     - name: Build Server
       working-directory: ./server
       run: |
-        # npm install
-        # npm run build
+        npm install
+        npm run build
         touch .env
         echo GIT_OAUTH_CLIENT_ID="Ov23liTznPyWE9sBhb0W" >> .env
         echo GIT_OAUTH_CLIENT_SECRET="3187041541fc31cdd137d933b98074098400e9c0" >> .env
@@ -39,7 +39,7 @@ jobs:
         echo SMTP_PORT="465" >> .env
         echo SMTP_USER="302681871@qq.com" >> .env
         echo SMTP_PASS="jpaawbfwispvbjca" >> .env
-    # 部署client到服务器
+    # copy client到机器
     - name: scp client
       uses: youxingz/sshpass-scp-action@v3
       with:
@@ -47,19 +47,19 @@ jobs:
         user: ${{ secrets.SERVER_USERNAME }}
         pass: ${{ secrets.SERVER_PASSWORD }}
         src: "client/dist/*"
-        dist: "client"
+        dist: "client/dist"
         
-    # 部署server到服务器
+    # copy server到机器
     - name: scp server
       uses: youxingz/sshpass-scp-action@v3
       with:
         host: ${{ secrets.SERVER_HOST }}
         user: ${{ secrets.SERVER_USERNAME }}
         pass: ${{ secrets.SERVER_PASSWORD }}
-        src: "server/*"
-        dist: "server"
+        src: "server/dist/*"
+        dist: "server/dist"
 
-    # 部署env到服务器
+    # copy .env 到机器
     - name: scp .env
       uses: youxingz/sshpass-scp-action@v3
       with:
@@ -67,6 +67,16 @@ jobs:
         user: ${{ secrets.SERVER_USERNAME }}
         pass: ${{ secrets.SERVER_PASSWORD }}
         src: "server/.env"
+        dist: "server"
+    
+    # copy server/package.json 到机器
+    - name: scp server/package.json
+      uses: youxingz/sshpass-scp-action@v3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        user: ${{ secrets.SERVER_USERNAME }}
+        pass: ${{ secrets.SERVER_PASSWORD }}
+        src: "server/package.json"
         dist: "server"
 
     # 重启服务
