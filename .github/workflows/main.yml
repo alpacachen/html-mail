@@ -29,8 +29,8 @@ jobs:
     - name: Build Server
       working-directory: ./server
       run: |
-        npm install
-        npm run build
+        # npm install
+        # npm run build
         touch .env
         echo GIT_OAUTH_CLIENT_ID="Ov23liTznPyWE9sBhb0W" >> .env
         echo GIT_OAUTH_CLIENT_SECRET="3187041541fc31cdd137d933b98074098400e9c0" >> .env
@@ -56,7 +56,7 @@ jobs:
         host: ${{ secrets.SERVER_HOST }}
         user: ${{ secrets.SERVER_USERNAME }}
         pass: ${{ secrets.SERVER_PASSWORD }}
-        src: "server/dist/*"
+        src: "server/*"
         dist: "server"
 
     # 部署env到服务器
