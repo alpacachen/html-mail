@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Input, Button, Form, message, Card } from "antd";
 import { SendOutlined, HomeOutlined } from "@ant-design/icons";
 import { fetchWithAuth } from "../utils/api";
+import { defaultHtmlTemplate } from "../templates/emailTemplate";
 
 const { TextArea } = Input;
 
@@ -11,6 +12,13 @@ const HtmlMail: React.FC = () => {
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
+
+  // 设置默认值
+  React.useEffect(() => {
+    form.setFieldsValue({
+      content: defaultHtmlTemplate,
+    });
+  }, [form]);
 
   const handleSendEmail = async (values: {
     email: string;
@@ -50,7 +58,7 @@ const HtmlMail: React.FC = () => {
   };
 
   return (
-    <div>
+    <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
       {contextHolder}
       <Card style={{ width: "100%", maxWidth: "800px" }}>
         <Card.Meta
@@ -89,7 +97,7 @@ const HtmlMail: React.FC = () => {
           </Form.Item>
 
           <Form.Item
-            label="邮件内容"
+            label="HTML 邮件内容"
             name="content"
             rules={[{ required: true, message: "请输入邮件内容" }]}
           >
