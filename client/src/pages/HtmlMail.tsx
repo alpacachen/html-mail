@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Input,
@@ -10,115 +10,89 @@ import {
   InputNumber,
   Tooltip,
   Space,
-  Typography,
 } from "antd";
 import {
   SendOutlined,
   HomeOutlined,
   InfoCircleOutlined,
-  GithubOutlined,
 } from "@ant-design/icons";
 import { fetchWithAuth } from "../utils/api";
 import { defaultHtmlTemplate } from "../templates/emailTemplate";
+import { ConfigType, EmailFormValues } from "../types";
+import AuthStatus from "../components/AuthStatus";
 
 const { TextArea } = Input;
 
-interface EmailConfig {
-  host: string;
-  port: number;
-  user: string;
-  pass: string;
-}
+// 自定义邮箱配置表单
+const CustomEmailConfig: React.FC = () => (
+  <Card title="邮箱配置" size="small" style={{ marginBottom: 16 }}>
+    <Form.Item
+      label="SMTP服务器"
+      name={["config", "host"]}
+      rules={[{ required: true, message: "请输入SMTP服务器地址" }]}
+    >
+      <Input placeholder="例如: smtp.qq.com" />
+    </Form.Item>
 
-interface User {
-  name: string;
-  login: string;
-  avatarUrl: string;
-}
+    <Form.Item
+      label="SMTP端口"
+      name={["config", "port"]}
+      rules={[{ required: true, message: "请输入SMTP端口" }]}
+    >
+      <InputNumber
+        placeholder="例如: 465"
+        min={1}
+        max={65535}
+        style={{ width: "100%" }}
+      />
+    </Form.Item>
+
+    <Form.Item
+      label="邮箱账号"
+      name={["config", "user"]}
+      rules={[{ required: true, message: "请输入邮箱账号" }]}
+    >
+      <Input placeholder="请输入邮箱账号" />
+    </Form.Item>
+
+    <Form.Item
+      label={
+        <span>
+          邮箱密码/授权码&nbsp;
+          <Tooltip title="我们不会记录或存储您的邮箱密码，仅用于当前发送邮件">
+            <InfoCircleOutlined style={{ color: "#1890ff" }} />
+          </Tooltip>
+        </span>
+      }
+      name={["config", "pass"]}
+      rules={[{ required: true, message: "请输入邮箱密码或授权码" }]}
+    >
+      <Input.Password placeholder="请输入邮箱密码或授权码" />
+    </Form.Item>
+  </Card>
+);
 
 const HtmlMail: React.FC = () => {
   const [form] = Form.useForm();
   const [sending, setSending] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
-  const [configType, setConfigType] = useState<"quick" | "custom">("quick");
-  const [user, setUser] = useState<User | null>(null);
-  const [expiresIn, setExpiresIn] = useState<string>("");
+  const [configType, setConfigType] = useState<ConfigType>("quick");
 
-  // 设置默认值
-  React.useEffect(() => {
+  useEffect(() => {
     form.setFieldsValue({
       content: defaultHtmlTemplate,
       subject: "测试邮件",
     });
   }, [form]);
 
-  // 添加用户信息加载
-  React.useEffect(() => {
-    const userStr = localStorage.getItem("user");
-    if (userStr) {
-      setUser(JSON.parse(userStr));
-    }
-  }, []);
-
-  // 添加过期时间计算
-  React.useEffect(() => {
-    const updateExpiryTime = () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const base64Url = token.split(".")[1];
-      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-      const payload = JSON.parse(window.atob(base64));
-
-      if (payload.exp) {
-        const expirationTime = new Date(payload.exp * 1000);
-        const now = new Date();
-        const diffInSeconds = Math.floor(
-          (expirationTime.getTime() - now.getTime()) / 1000
-        );
-
-        if (diffInSeconds <= 0) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          setUser(null);
-          setExpiresIn("");
-          return;
-        }
-
-        const hours = Math.floor(diffInSeconds / 3600);
-        const minutes = Math.floor((diffInSeconds % 3600) / 60);
-        const seconds = diffInSeconds % 60;
-
-        setExpiresIn(
-          `${hours.toString().padStart(2, "0")}:${minutes
-            .toString()
-            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-        );
-      }
-    };
-
-    updateExpiryTime();
-    const timer = setInterval(updateExpiryTime, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleSendEmail = async (values: {
-    email: string;
-    content: string;
-    subject: string;
-    config?: EmailConfig;
-  }) => {
+  const handleSendEmail = async (values: EmailFormValues) => {
     try {
       setSending(true);
-
       const endpoint =
         configType === "custom" ? "/api/send-email-custom" : "/api/send-email";
       const response = await fetchWithAuth(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
@@ -140,22 +114,6 @@ const HtmlMail: React.FC = () => {
     } finally {
       setSending(false);
     }
-  };
-
-  const handleGithubLogin = () => {
-    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-    const redirectUri = encodeURIComponent(
-      `${window.location.origin}/auth/github/callback`
-    );
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
-  };
-
-  const handleGiteeLogin = () => {
-    const clientId = import.meta.env.VITE_GITEE_OAUTH_CLIENT_ID;
-    const redirectUri = encodeURIComponent(
-      `${window.location.origin}/auth/gitee/callback`
-    );
-    window.location.href = `https://gitee.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
   };
 
   return (
@@ -211,21 +169,16 @@ const HtmlMail: React.FC = () => {
                   </Radio>
                   <Radio value="custom">
                     使用自定义邮箱配置
-                    <Tooltip
-                      title={
-                        <a
-                          href="https://service.mail.qq.com/detail/123/141"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ fontSize: "14px", marginLeft: 8 }}
-                        >
-                          举例：QQ邮箱的SMTP配置
-                        </a>
-                      }
-                    >
-                      <InfoCircleOutlined
-                        style={{ color: "#1890ff", marginLeft: 4 }}
-                      />
+                    <Tooltip title="点击查看如何获取QQ邮箱的SMTP配置">
+                      <a
+                        href="https://service.mail.qq.com/detail/123/141"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: "14px", marginLeft: 8 }}
+                      >
+                        <InfoCircleOutlined style={{ marginRight: 4 }} />
+                        举例：QQ邮箱的SMTP配置
+                      </a>
                     </Tooltip>
                   </Radio>
                 </Space>
@@ -234,121 +187,14 @@ const HtmlMail: React.FC = () => {
               {configType === "quick" && (
                 <Card size="small" style={{ marginTop: 8 }}>
                   <Space direction="vertical" style={{ width: "100%" }}>
-                    {user ? (
-                      <Space direction="vertical" style={{ width: "100%" }}>
-                        <Space>
-                          <img
-                            src={user.avatarUrl}
-                            alt="avatar"
-                            style={{
-                              width: 24,
-                              height: 24,
-                              borderRadius: "50%",
-                              marginRight: 8,
-                            }}
-                          />
-                          <Typography.Text type="success">
-                            已通过 GitHub 认证 - {user.name || user.login}
-                          </Typography.Text>
-                        </Space>
-                        {expiresIn && (
-                          <Typography.Text
-                            type="secondary"
-                            style={{ fontSize: "12px" }}
-                          >
-                            认证有效期还剩：{expiresIn}
-                          </Typography.Text>
-                        )}
-                      </Space>
-                    ) : (
-                      <Space direction="vertical" style={{ width: "100%" }}>
-                        <Typography.Text type="warning">
-                          使用快捷配置需要先进行第三方认证
-                        </Typography.Text>
-                        <Space.Compact block>
-                          <Button
-                            type="primary"
-                            icon={<GithubOutlined />}
-                            onClick={handleGithubLogin}
-                            style={{ width: "50%" }}
-                          >
-                            GitHub 认证
-                          </Button>
-                          <Button
-                            type="default"
-                            icon={
-                              <img
-                                src="https://gitee.com/static/images/logo-black.svg"
-                                alt="gitee"
-                                style={{
-                                  height: 14,
-                                  marginRight: 8,
-                                  position: "relative",
-                                  top: -1,
-                                }}
-                              />
-                            }
-                            onClick={handleGiteeLogin}
-                            style={{ width: "50%" }}
-                          >
-                            Gitee 认证
-                          </Button>
-                        </Space.Compact>
-                      </Space>
-                    )}
+                    <AuthStatus />
                   </Space>
                 </Card>
               )}
             </Space>
           </Form.Item>
 
-          {configType === "custom" && (
-            <Card title="邮箱配置" size="small" style={{ marginBottom: 16 }}>
-              <Form.Item
-                label="SMTP服务器"
-                name={["config", "host"]}
-                rules={[{ required: true, message: "请输入SMTP服务器地址" }]}
-              >
-                <Input placeholder="例如: smtp.qq.com" />
-              </Form.Item>
-
-              <Form.Item
-                label="SMTP端口"
-                name={["config", "port"]}
-                rules={[{ required: true, message: "请输入SMTP端口" }]}
-              >
-                <InputNumber
-                  placeholder="例如: 465"
-                  min={1}
-                  max={65535}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="邮箱账号"
-                name={["config", "user"]}
-                rules={[{ required: true, message: "请输入邮箱账号" }]}
-              >
-                <Input placeholder="请输入邮箱账号" />
-              </Form.Item>
-
-              <Form.Item
-                label={
-                  <span>
-                    邮箱密码/授权码&nbsp;
-                    <Tooltip title="我们不会记录或存储您的邮箱密码，仅用于当前发送邮件">
-                      <InfoCircleOutlined style={{ color: "#1890ff" }} />
-                    </Tooltip>
-                  </span>
-                }
-                name={["config", "pass"]}
-                rules={[{ required: true, message: "请输入邮箱密码或授权码" }]}
-              >
-                <Input.Password placeholder="请输入邮箱密码或授权码" />
-              </Form.Item>
-            </Card>
-          )}
+          {configType === "custom" && <CustomEmailConfig />}
 
           <Form.Item
             label="收件人邮箱"

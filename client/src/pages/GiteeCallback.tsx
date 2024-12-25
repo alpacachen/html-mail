@@ -29,10 +29,16 @@ const GiteeCallback: React.FC = () => {
 
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...data.user,
+            source: 'gitee'
+          })
+        );
         
-        // 跳转到首页
-        navigate("/");
+        // 修改这里：跳转到 html-mail 页面
+        navigate("/html-mail");
       } catch (error) {
         console.error("Gitee auth error:", error);
         setError("登录失败，请重试");

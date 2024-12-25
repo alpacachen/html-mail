@@ -29,8 +29,15 @@ const GithubCallback: React.FC = () => {
 
         const data = await response.json();
         localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/");
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            ...data.user,
+            source: 'github'
+          })
+        );
+        
+        navigate("/html-mail");
       } catch (error) {
         console.error("GitHub auth error:", error);
         setError("登录失败，请重试");
