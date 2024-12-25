@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
-import { GithubUser, JwtPayload } from './types';
+import { GithubUser, GiteeUser, JwtPayload } from './types';
 
 @Injectable()
 export class AuthService {
@@ -80,6 +80,67 @@ export class AuthService {
       return payload;
     } catch {
       throw new Error('Invalid token');
+    }
+  }
+
+  async giteeAuth(code: string) {
+    try {
+      // 1. 获取 access token
+      const tokenResponse = await axios.post(
+        'https://gitee.com/oauth/token',
+        {
+          grant_type: 'authorization_code',
+          code,
+          client_id: this.configService.get('GITEE_OAUTH_CLIENT_ID'),
+          client_secret: this.configService.get('GITEE_OAUTH_CLIENT_SECRET'),
+          redirect_uri: this.configService.get('GITEE_OAUTH_REDIRECT_URI'),
+        },
+        {
+          headers: {
+            Accept: 'application/json',
+          },
+        },
+      );
+
+      const accessToken = tokenResponse.data.access_token;
+      if (!accessToken) {
+        throw new Error('Failed to get access token');
+      }
+
+      // 2. 获取用户信息
+      const userResponse = await axios.get<GiteeUser>(
+        'https://gitee.com/api/v5/user',
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      const user = userResponse.data;
+
+      // 3. 生成 JWT token
+      const jwtToken = await this.generateToken({
+        id: user.id,
+        login: user.login,
+        name: user.name,
+        email: user.email,
+        avatar_url: user.avatar_url,
+      });
+
+      return {
+        token: jwtToken,
+        user: {
+          id: user.id,
+          login: user.login,
+          name: user.name,
+          email: user.email,
+          avatarUrl: user.avatar_url,
+        },
+      };
+    } catch (error) {
+      console.error('Gitee auth error:', error);
+      throw new Error('Gitee authentication failed');
     }
   }
 }

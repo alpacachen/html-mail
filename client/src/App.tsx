@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import HtmlMail from "./pages/HtmlMail";
 import GithubCallback from "./pages/GithubCallback";
+import GiteeCallback from "./pages/GiteeCallback";
 import NotFound from "./pages/NotFound";
 import { Flex } from "antd";
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/html-mail" element={<HtmlMail />} />
         <Route path="/auth/github/callback" element={<GithubCallback />} />
+        <Route path="/auth/gitee/callback" element={<GiteeCallback />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Flex>

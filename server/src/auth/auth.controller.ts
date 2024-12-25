@@ -12,4 +12,12 @@ export class AuthController {
     }
     return await this.authService.githubAuth(code);
   }
+
+  @Post('gitee')
+  async giteeAuth(@Body('code') code: string) {
+    if (!code) {
+      throw new Error('Authorization code is required');
+    }
+    return await this.authService.giteeAuth(code);
+  }
 }

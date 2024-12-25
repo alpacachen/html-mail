@@ -150,6 +150,14 @@ const HtmlMail: React.FC = () => {
     window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
   };
 
+  const handleGiteeLogin = () => {
+    const clientId = import.meta.env.VITE_GITEE_OAUTH_CLIENT_ID;
+    const redirectUri = encodeURIComponent(
+      `${window.location.origin}/auth/gitee/callback`
+    );
+    window.location.href = `https://gitee.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
+  };
+
   return (
     <div
       style={{
@@ -195,7 +203,7 @@ const HtmlMail: React.FC = () => {
                 <Space direction="vertical">
                   <Radio value="quick">
                     使用快捷配置
-                    <Tooltip title="快捷配置使用站长邮箱发送，需要 GitHub 认证以防止滥用，本站不会记录或存储您的任何隐私信息，请放心使用">
+                    <Tooltip title="快捷配置使用站长邮箱发送，需要第三方 OAuth 认证以防止滥用，本站不会记录或存储您的任何隐私信息，请放心使用">
                       <InfoCircleOutlined
                         style={{ color: "#1890ff", marginLeft: 4 }}
                       />
@@ -253,14 +261,40 @@ const HtmlMail: React.FC = () => {
                         )}
                       </Space>
                     ) : (
-                      <Button
-                        type="primary"
-                        icon={<GithubOutlined />}
-                        onClick={handleGithubLogin}
-                        block
-                      >
-                        GitHub 认证
-                      </Button>
+                      <Space direction="vertical" style={{ width: "100%" }}>
+                        <Typography.Text type="warning">
+                          使用快捷配置需要先进行第三方认证
+                        </Typography.Text>
+                        <Space.Compact block>
+                          <Button
+                            type="primary"
+                            icon={<GithubOutlined />}
+                            onClick={handleGithubLogin}
+                            style={{ width: "50%" }}
+                          >
+                            GitHub 认证
+                          </Button>
+                          <Button
+                            type="default"
+                            icon={
+                              <img
+                                src="https://gitee.com/static/images/logo-black.svg"
+                                alt="gitee"
+                                style={{
+                                  height: 14,
+                                  marginRight: 8,
+                                  position: "relative",
+                                  top: -1,
+                                }}
+                              />
+                            }
+                            onClick={handleGiteeLogin}
+                            style={{ width: "50%" }}
+                          >
+                            Gitee 认证
+                          </Button>
+                        </Space.Compact>
+                      </Space>
                     )}
                   </Space>
                 </Card>

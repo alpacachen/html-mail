@@ -10,7 +10,11 @@ import { AuthService } from './auth.service';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get('JWT_SECRET'),
-        signOptions: { expiresIn: '1.5h' },
+        // dev 过期时间 1.5 分钟
+        // prod 过期时间 1.5 小时
+        signOptions: {
+          expiresIn: config.get('NODE_ENV') === 'development' ? '1.5m' : '1.5h',
+        },
       }),
     }),
   ],
