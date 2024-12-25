@@ -34,7 +34,6 @@ export class AppController {
     return await this.appService.sendTestEmail(email, content, subject);
   }
 
-  @UseGuards(AuthGuard)
   @Post('send-email-custom')
   async sendEmailCustom(
     @Body('email') email: string,

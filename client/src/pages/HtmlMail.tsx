@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Input,
   Button,
@@ -10,11 +10,13 @@ import {
   InputNumber,
   Tooltip,
   Space,
+  Typography,
 } from "antd";
 import {
   SendOutlined,
   HomeOutlined,
   InfoCircleOutlined,
+  GithubOutlined,
 } from "@ant-design/icons";
 import { fetchWithAuth } from "../utils/api";
 import { defaultHtmlTemplate } from "../templates/emailTemplate";
@@ -28,12 +30,19 @@ interface EmailConfig {
   pass: string;
 }
 
+interface User {
+  name: string;
+  login: string;
+  avatarUrl: string;
+}
+
 const HtmlMail: React.FC = () => {
   const [form] = Form.useForm();
   const [sending, setSending] = useState(false);
-  const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
   const [configType, setConfigType] = useState<"quick" | "custom">("quick");
+  const [user, setUser] = useState<User | null>(null);
+  const [expiresIn, setExpiresIn] = useState<string>("");
 
   // 设置默认值
   React.useEffect(() => {
@@ -42,6 +51,57 @@ const HtmlMail: React.FC = () => {
       subject: "测试邮件",
     });
   }, [form]);
+
+  // 添加用户信息加载
+  React.useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      setUser(JSON.parse(userStr));
+    }
+  }, []);
+
+  // 添加过期时间计算
+  React.useEffect(() => {
+    const updateExpiryTime = () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const payload = JSON.parse(window.atob(base64));
+
+      if (payload.exp) {
+        const expirationTime = new Date(payload.exp * 1000);
+        const now = new Date();
+        const diffInSeconds = Math.floor(
+          (expirationTime.getTime() - now.getTime()) / 1000
+        );
+
+        if (diffInSeconds <= 0) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+          setExpiresIn("");
+          return;
+        }
+
+        const hours = Math.floor(diffInSeconds / 3600);
+        const minutes = Math.floor((diffInSeconds % 3600) / 60);
+        const seconds = diffInSeconds % 60;
+
+        setExpiresIn(
+          `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        );
+      }
+    };
+
+    updateExpiryTime();
+    const timer = setInterval(updateExpiryTime, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSendEmail = async (values: {
     email: string;
@@ -71,17 +131,23 @@ const HtmlMail: React.FC = () => {
       messageApi.success("邮件发送成功！");
       form.resetFields();
     } catch (error: unknown) {
-      if (error instanceof Error && error.message === "Unauthorized") {
-        navigate("/");
-        return;
+      if (error instanceof Error && error.message !== "Unauthorized") {
+        messageApi.error(
+          error instanceof Error ? error.message : "邮件发送失败，请重试"
+        );
+        console.error("发送邮件出错:", error);
       }
-      messageApi.error(
-        error instanceof Error ? error.message : "邮件发送失败，请重试"
-      );
-      console.error("发送邮件出错:", error);
     } finally {
       setSending(false);
     }
+  };
+
+  const handleGithubLogin = () => {
+    const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
+    const redirectUri = encodeURIComponent(
+      `${window.location.origin}/auth/github/callback`
+    );
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}`;
   };
 
   return (
@@ -129,7 +195,7 @@ const HtmlMail: React.FC = () => {
                 <Space direction="vertical">
                   <Radio value="quick">
                     使用快捷配置
-                    <Tooltip title="快捷配置使用站长邮箱发送，需要 GitHub 认证以防止滥用">
+                    <Tooltip title="快捷配置使用站长邮箱发送，需要 GitHub 认证以防止滥用，本站不会记录或存储您的任何隐私信息，请放心使用">
                       <InfoCircleOutlined
                         style={{ color: "#1890ff", marginLeft: 4 }}
                       />
@@ -156,6 +222,49 @@ const HtmlMail: React.FC = () => {
                   </Radio>
                 </Space>
               </Radio.Group>
+
+              {configType === "quick" && (
+                <Card size="small" style={{ marginTop: 8 }}>
+                  <Space direction="vertical" style={{ width: "100%" }}>
+                    {user ? (
+                      <Space direction="vertical" style={{ width: "100%" }}>
+                        <Space>
+                          <img
+                            src={user.avatarUrl}
+                            alt="avatar"
+                            style={{
+                              width: 24,
+                              height: 24,
+                              borderRadius: "50%",
+                              marginRight: 8,
+                            }}
+                          />
+                          <Typography.Text type="success">
+                            已通过 GitHub 认证 - {user.name || user.login}
+                          </Typography.Text>
+                        </Space>
+                        {expiresIn && (
+                          <Typography.Text
+                            type="secondary"
+                            style={{ fontSize: "12px" }}
+                          >
+                            认证有效期还剩：{expiresIn}
+                          </Typography.Text>
+                        )}
+                      </Space>
+                    ) : (
+                      <Button
+                        type="primary"
+                        icon={<GithubOutlined />}
+                        onClick={handleGithubLogin}
+                        block
+                      >
+                        GitHub 认证
+                      </Button>
+                    )}
+                  </Space>
+                </Card>
+              )}
             </Space>
           </Form.Item>
 
