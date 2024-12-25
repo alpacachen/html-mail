@@ -1,7 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Input, Button, Form, message, Card, Checkbox, InputNumber, Tooltip, Space } from "antd";
-import { SendOutlined, HomeOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import {
+  Input,
+  Button,
+  Form,
+  message,
+  Card,
+  Radio,
+  InputNumber,
+  Tooltip,
+  Space,
+} from "antd";
+import {
+  SendOutlined,
+  HomeOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 import { fetchWithAuth } from "../utils/api";
 import { defaultHtmlTemplate } from "../templates/emailTemplate";
 
@@ -19,7 +33,7 @@ const HtmlMail: React.FC = () => {
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
-  const [useCustomConfig, setUseCustomConfig] = useState(false);
+  const [configType, setConfigType] = useState<"quick" | "custom">("quick");
 
   // 设置默认值
   React.useEffect(() => {
@@ -38,7 +52,8 @@ const HtmlMail: React.FC = () => {
     try {
       setSending(true);
 
-      const endpoint = useCustomConfig ? '/api/send-email-custom' : '/api/send-email';
+      const endpoint =
+        configType === "custom" ? "/api/send-email-custom" : "/api/send-email";
       const response = await fetchWithAuth(endpoint, {
         method: "POST",
         headers: {
@@ -70,7 +85,14 @@ const HtmlMail: React.FC = () => {
   };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        maxHeight: "100vh",
+      }}
+    >
       {contextHolder}
       <Card style={{ width: "100%", maxWidth: "800px" }}>
         <Card.Meta
@@ -97,6 +119,94 @@ const HtmlMail: React.FC = () => {
           onFinish={handleSendEmail}
           validateTrigger="onBlur"
         >
+          <Form.Item>
+            <Space direction="vertical" style={{ width: "100%" }}>
+              <Radio.Group
+                value={configType}
+                onChange={(e) => setConfigType(e.target.value)}
+                style={{ marginBottom: 8 }}
+              >
+                <Space direction="vertical">
+                  <Radio value="quick">
+                    使用快捷配置
+                    <Tooltip title="快捷配置使用站长邮箱发送，需要 GitHub 认证以防止滥用">
+                      <InfoCircleOutlined
+                        style={{ color: "#1890ff", marginLeft: 4 }}
+                      />
+                    </Tooltip>
+                  </Radio>
+                  <Radio value="custom">
+                    使用自定义邮箱配置
+                    <Tooltip
+                      title={
+                        <a
+                          href="https://service.mail.qq.com/detail/123/141"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: "14px", marginLeft: 8 }}
+                        >
+                          举例：QQ邮箱的SMTP配置
+                        </a>
+                      }
+                    >
+                      <InfoCircleOutlined
+                        style={{ color: "#1890ff", marginLeft: 4 }}
+                      />
+                    </Tooltip>
+                  </Radio>
+                </Space>
+              </Radio.Group>
+            </Space>
+          </Form.Item>
+
+          {configType === "custom" && (
+            <Card title="邮箱配置" size="small" style={{ marginBottom: 16 }}>
+              <Form.Item
+                label="SMTP服务器"
+                name={["config", "host"]}
+                rules={[{ required: true, message: "请输入SMTP服务器地址" }]}
+              >
+                <Input placeholder="例如: smtp.qq.com" />
+              </Form.Item>
+
+              <Form.Item
+                label="SMTP端口"
+                name={["config", "port"]}
+                rules={[{ required: true, message: "请输入SMTP端口" }]}
+              >
+                <InputNumber
+                  placeholder="例如: 465"
+                  min={1}
+                  max={65535}
+                  style={{ width: "100%" }}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="邮箱账号"
+                name={["config", "user"]}
+                rules={[{ required: true, message: "请输入邮箱账号" }]}
+              >
+                <Input placeholder="请输入邮箱账号" />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <span>
+                    邮箱密码/授权码&nbsp;
+                    <Tooltip title="我们不会记录或存储您的邮箱密码，仅用于当前发送邮件">
+                      <InfoCircleOutlined style={{ color: "#1890ff" }} />
+                    </Tooltip>
+                  </span>
+                }
+                name={["config", "pass"]}
+                rules={[{ required: true, message: "请输入邮箱密码或授权码" }]}
+              >
+                <Input.Password placeholder="请输入邮箱密码或授权码" />
+              </Form.Item>
+            </Card>
+          )}
+
           <Form.Item
             label="收件人邮箱"
             name="email"
@@ -127,76 +237,6 @@ const HtmlMail: React.FC = () => {
               style={{ fontFamily: "monospace" }}
             />
           </Form.Item>
-
-          <Form.Item>
-            <Space>
-              <Checkbox
-                checked={useCustomConfig}
-                onChange={(e) => setUseCustomConfig(e.target.checked)}
-              >
-                使用自定义邮箱配置
-              </Checkbox>
-              <Tooltip title="点击查看如何获取QQ邮箱的SMTP配置">
-                <a
-                  href="https://service.mail.qq.com/detail/123/141"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: '14px' }}
-                >
-                  <InfoCircleOutlined style={{ marginRight: 4 }} />
-                  举例：QQ邮箱的SMTP配置
-                </a>
-              </Tooltip>
-            </Space>
-          </Form.Item>
-
-          {useCustomConfig && (
-            <Card title="邮箱配置" size="small" style={{ marginBottom: 16 }}>
-              <Form.Item
-                label="SMTP服务器"
-                name={['config', 'host']}
-                rules={[{ required: true, message: '请输入SMTP服务器地址' }]}
-              >
-                <Input placeholder="例如: smtp.qq.com" />
-              </Form.Item>
-
-              <Form.Item
-                label="SMTP端口"
-                name={['config', 'port']}
-                rules={[{ required: true, message: '请输入SMTP端口' }]}
-              >
-                <InputNumber
-                  placeholder="例如: 465"
-                  min={1}
-                  max={65535}
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-
-              <Form.Item
-                label="邮箱账号"
-                name={['config', 'user']}
-                rules={[{ required: true, message: '请输入邮箱账号' }]}
-              >
-                <Input placeholder="请输入邮箱账号" />
-              </Form.Item>
-
-              <Form.Item
-                label={
-                  <span>
-                    邮箱密码/授权码&nbsp;
-                    <Tooltip title="我们不会记录或存储您的邮箱密码，仅用于当前发送邮件">
-                      <InfoCircleOutlined style={{ color: '#1890ff' }} />
-                    </Tooltip>
-                  </span>
-                }
-                name={['config', 'pass']}
-                rules={[{ required: true, message: '请输入邮箱密码或授权码' }]}
-              >
-                <Input.Password placeholder="请输入邮箱密码或授权码" />
-              </Form.Item>
-            </Card>
-          )}
 
           <Form.Item>
             <Button
