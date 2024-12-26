@@ -13,6 +13,13 @@ function App() {
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
     localStorage.setItem("language", value);
+    
+    // 获取当前路径
+    const path = window.location.pathname;
+    // 如果在邮件编辑页面，重新加载页面以更新模板
+    if (path === '/html-mail') {
+      window.location.reload();
+    }
   };
 
   return (

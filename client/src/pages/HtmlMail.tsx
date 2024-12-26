@@ -86,7 +86,7 @@ const HtmlMail: React.FC = () => {
 
   useEffect(() => {
     form.setFieldsValue({
-      content: defaultHtmlTemplate,
+      content: defaultHtmlTemplate(),
       subject: t('mail.form.subject.placeholder'),
     });
   }, [form, t]);
