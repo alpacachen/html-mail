@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Button, Space, Typography } from "antd";
 import { GithubOutlined } from "@ant-design/icons";
+import { useTranslation } from 'react-i18next';
 import { User } from "../types";
 
 const AuthStatus: React.FC = () => {
+  const { t } = useTranslation();
   const [user, setUser] = useState<User | null>(null);
   const [expiresIn, setExpiresIn] = useState<string>("");
 
@@ -86,12 +88,15 @@ const AuthStatus: React.FC = () => {
             }}
           />
           <Typography.Text type="success">
-            已通过 {user.source === 'github' ? 'GitHub' : 'Gitee'} 认证 - {user.name || user.login}
+            {t('auth.authenticated', {
+              platform: user.source === 'github' ? 'GitHub' : 'Gitee',
+              name: user.name || user.login
+            })}
           </Typography.Text>
         </Space>
         {expiresIn && (
           <Typography.Text type="secondary" style={{ fontSize: "12px" }}>
-            认证有效期还剩：{expiresIn}
+            {t('auth.expiresIn', { time: expiresIn })}
           </Typography.Text>
         )}
       </Space>
@@ -101,7 +106,7 @@ const AuthStatus: React.FC = () => {
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
       <Typography.Text type="warning">
-        使用快捷配置需要先进行第三方认证
+        {t('auth.needAuth')}
       </Typography.Text>
       <Space.Compact block>
         <Button
@@ -110,7 +115,7 @@ const AuthStatus: React.FC = () => {
           onClick={handleGithubLogin}
           style={{ width: "50%" }}
         >
-          GitHub 认证
+          {t('auth.github')}
         </Button>
         <Button
           type="default"
@@ -129,7 +134,7 @@ const AuthStatus: React.FC = () => {
           onClick={handleGiteeLogin}
           style={{ width: "50%" }}
         >
-          Gitee 认证
+          {t('auth.gitee')}
         </Button>
       </Space.Compact>
     </Space>

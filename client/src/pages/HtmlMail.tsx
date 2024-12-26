@@ -16,6 +16,7 @@ import {
   HomeOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
+import { useTranslation } from 'react-i18next';
 import { fetchWithAuth } from "../utils/api";
 import { defaultHtmlTemplate } from "../templates/emailTemplate";
 import { ConfigType, EmailFormValues } from "../types";
@@ -24,55 +25,60 @@ import AuthStatus from "../components/AuthStatus";
 const { TextArea } = Input;
 
 // 自定义邮箱配置表单
-const CustomEmailConfig: React.FC = () => (
-  <Card title="邮箱配置" size="small" style={{ marginBottom: 16 }}>
-    <Form.Item
-      label="SMTP服务器"
-      name={["config", "host"]}
-      rules={[{ required: true, message: "请输入SMTP服务器地址" }]}
-    >
-      <Input placeholder="例如: smtp.qq.com" />
-    </Form.Item>
+const CustomEmailConfig: React.FC = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <Card title={t('mail.form.smtp.title')} size="small" style={{ marginBottom: 16 }}>
+      <Form.Item
+        label={t('mail.form.smtp.host')}
+        name={["config", "host"]}
+        rules={[{ required: true, message: t('mail.form.smtp.hostPlaceholder') }]}
+      >
+        <Input placeholder={t('mail.form.smtp.hostPlaceholder')} />
+      </Form.Item>
 
-    <Form.Item
-      label="SMTP端口"
-      name={["config", "port"]}
-      rules={[{ required: true, message: "请输入SMTP端口" }]}
-    >
-      <InputNumber
-        placeholder="例如: 465"
-        min={1}
-        max={65535}
-        style={{ width: "100%" }}
-      />
-    </Form.Item>
+      <Form.Item
+        label={t('mail.form.smtp.port')}
+        name={["config", "port"]}
+        rules={[{ required: true, message: t('mail.form.smtp.portPlaceholder') }]}
+      >
+        <InputNumber
+          placeholder={t('mail.form.smtp.portPlaceholder')}
+          min={1}
+          max={65535}
+          style={{ width: "100%" }}
+        />
+      </Form.Item>
 
-    <Form.Item
-      label="邮箱账号"
-      name={["config", "user"]}
-      rules={[{ required: true, message: "请输入邮箱账号" }]}
-    >
-      <Input placeholder="请输入邮箱账号" />
-    </Form.Item>
+      <Form.Item
+        label={t('mail.form.smtp.user')}
+        name={["config", "user"]}
+        rules={[{ required: true, message: t('mail.form.smtp.userPlaceholder') }]}
+      >
+        <Input placeholder={t('mail.form.smtp.userPlaceholder')} />
+      </Form.Item>
 
-    <Form.Item
-      label={
-        <span>
-          邮箱密码/授权码&nbsp;
-          <Tooltip title="我们不会记录或存储您的邮箱密码，仅用于当前发送邮件">
-            <InfoCircleOutlined style={{ color: "#1890ff" }} />
-          </Tooltip>
-        </span>
-      }
-      name={["config", "pass"]}
-      rules={[{ required: true, message: "请输入邮箱密码或授权码" }]}
-    >
-      <Input.Password placeholder="请输入邮箱密码或授权码" />
-    </Form.Item>
-  </Card>
-);
+      <Form.Item
+        label={
+          <span>
+            {t('mail.form.smtp.pass')}&nbsp;
+            <Tooltip title={t('mail.form.smtp.passTip')}>
+              <InfoCircleOutlined style={{ color: "#1890ff" }} />
+            </Tooltip>
+          </span>
+        }
+        name={["config", "pass"]}
+        rules={[{ required: true, message: t('mail.form.smtp.passPlaceholder') }]}
+      >
+        <Input.Password placeholder={t('mail.form.smtp.passPlaceholder')} />
+      </Form.Item>
+    </Card>
+  );
+};
 
 const HtmlMail: React.FC = () => {
+  const { t } = useTranslation();
   const [form] = Form.useForm();
   const [sending, setSending] = useState(false);
   const [messageApi, contextHolder] = message.useMessage();
@@ -81,9 +87,9 @@ const HtmlMail: React.FC = () => {
   useEffect(() => {
     form.setFieldsValue({
       content: defaultHtmlTemplate,
-      subject: "测试邮件",
+      subject: t('mail.form.subject.placeholder'),
     });
-  }, [form]);
+  }, [form, t]);
 
   const handleSendEmail = async (values: EmailFormValues) => {
     try {
@@ -117,29 +123,20 @@ const HtmlMail: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        width: "100%",
-        maxHeight: "100vh",
-      }}
-    >
+    <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
       {contextHolder}
       <Card style={{ width: "100%", maxWidth: "800px" }}>
         <Card.Meta
           title={
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "24px",
-              }}
-            >
-              <span>HTML 邮件工具</span>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "24px",
+            }}>
+              <span>{t('mail.title')}</span>
               <Link to="/">
-                <Button icon={<HomeOutlined />}>返回首页</Button>
+                <Button icon={<HomeOutlined />}>{t('common.back')}</Button>
               </Link>
             </div>
           }
@@ -160,16 +157,14 @@ const HtmlMail: React.FC = () => {
               >
                 <Space direction="vertical">
                   <Radio value="quick">
-                    使用快捷配置
-                    <Tooltip title="快捷配置使用站长邮箱发送，需要第三方 OAuth 认证以防止滥用，本站不会记录或存储您的任何隐私信息，请放心使用">
-                      <InfoCircleOutlined
-                        style={{ color: "#1890ff", marginLeft: 4 }}
-                      />
+                    {t('mail.config.quick.title')}
+                    <Tooltip title={t('mail.config.quick.tip')}>
+                      <InfoCircleOutlined style={{ color: "#1890ff", marginLeft: 4 }} />
                     </Tooltip>
                   </Radio>
                   <Radio value="custom">
-                    使用自定义邮箱配置
-                    <Tooltip title="点击查看如何获取QQ邮箱的SMTP配置">
+                    {t('mail.config.custom.title')}
+                    <Tooltip title={t('mail.config.custom.tip')}>
                       <a
                         href="https://service.mail.qq.com/detail/123/141"
                         target="_blank"
@@ -177,7 +172,7 @@ const HtmlMail: React.FC = () => {
                         style={{ fontSize: "14px", marginLeft: 8 }}
                       >
                         <InfoCircleOutlined style={{ marginRight: 4 }} />
-                        举例：QQ邮箱的SMTP配置
+                        {t('mail.config.custom.example')}
                       </a>
                     </Tooltip>
                   </Radio>
@@ -197,32 +192,32 @@ const HtmlMail: React.FC = () => {
           {configType === "custom" && <CustomEmailConfig />}
 
           <Form.Item
-            label="收件人邮箱"
+            label={t('mail.form.email.label')}
             name="email"
             rules={[
-              { required: true, message: "请输入收件人邮箱" },
-              { type: "email", message: "请输入有效的邮箱地址" },
+              { required: true, message: t('mail.form.email.placeholder') },
+              { type: "email", message: t('mail.form.email.invalid') },
             ]}
           >
-            <Input placeholder="请输入收件人邮箱" />
+            <Input placeholder={t('mail.form.email.placeholder')} />
           </Form.Item>
 
           <Form.Item
-            label="邮件主题"
+            label={t('mail.form.subject.label')}
             name="subject"
-            rules={[{ required: true, message: "请输入邮件主题" }]}
+            rules={[{ required: true, message: t('mail.form.subject.placeholder') }]}
           >
-            <Input placeholder="请输入邮件主题" />
+            <Input placeholder={t('mail.form.subject.placeholder')} />
           </Form.Item>
 
           <Form.Item
-            label="HTML 邮件内容"
+            label={t('mail.form.content.label')}
             name="content"
-            rules={[{ required: true, message: "请输入邮件内容" }]}
+            rules={[{ required: true, message: t('mail.form.content.placeholder') }]}
           >
             <TextArea
               rows={10}
-              placeholder="在这里编写 HTML 邮件内容..."
+              placeholder={t('mail.form.content.placeholder')}
               style={{ fontFamily: "monospace" }}
             />
           </Form.Item>
@@ -235,7 +230,7 @@ const HtmlMail: React.FC = () => {
               icon={<SendOutlined />}
               block
             >
-              {sending ? "发送中..." : "发送邮件"}
+              {sending ? t('common.sending') : t('common.send')}
             </Button>
           </Form.Item>
         </Form>
