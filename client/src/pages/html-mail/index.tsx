@@ -1,16 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Card, Button, Typography, Space, Image } from "antd";
+import { Card, Button, Typography, Space, Image, Select } from "antd";
 import { MailOutlined } from "@ant-design/icons";
 import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 
+const LanguageSelector = () => {
+  const { i18n } = useTranslation();
+
+  const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
+    localStorage.setItem("language", value);
+  };
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 16,
+        right: 16,
+        zIndex: 1,
+      }}
+    >
+      <Select
+        value={i18n.language}
+        onChange={handleLanguageChange}
+        options={[
+          { value: "zh", label: "中文" },
+          { value: "en", label: "English" },
+        ]}
+      />
+    </div>
+  );
+};
+
 const Home: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <div>
+    <div style={{ position: "relative" }}>
+      <LanguageSelector />
       <Card style={{ width: "100%", maxWidth: "800px" }}>
         <Space direction="vertical" align="center" style={{ width: "100%" }}>
           <Image
@@ -26,7 +56,7 @@ const Home: React.FC = () => {
         </Space>
 
         <Space direction="vertical" size="large" style={{ width: "100%" }}>
-          <Link to="/html-mail">
+          <Link to="send">
             <Button type="primary" icon={<MailOutlined />} block>
               {t('home.startUse')}
             </Button>

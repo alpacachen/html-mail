@@ -17,10 +17,10 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import { useTranslation } from 'react-i18next';
-import { fetchWithAuth } from "../utils/api";
-import { defaultHtmlTemplate } from "../templates/emailTemplate";
-import { ConfigType, EmailFormValues } from "../types";
-import AuthStatus from "../components/AuthStatus";
+import { fetchWithAuth } from "../../utils/api";
+import { defaultHtmlTemplate } from "../../templates/email-template";
+import { ConfigType, EmailFormValues } from "../../types";
+import AuthStatus from "./auth-status";
 
 const { TextArea } = Input;
 
@@ -135,7 +135,7 @@ const HtmlMail: React.FC = () => {
               marginBottom: "24px",
             }}>
               <span>{t('mail.title')}</span>
-              <Link to="/">
+              <Link to="/html-mail">
                 <Button icon={<HomeOutlined />}>{t('common.back')}</Button>
               </Link>
             </div>
