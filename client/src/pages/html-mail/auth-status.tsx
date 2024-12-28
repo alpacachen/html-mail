@@ -68,7 +68,7 @@ const AuthStatus: React.FC = () => {
   const handleGiteeLogin = () => {
     const clientId = import.meta.env.VITE_GITEE_OAUTH_CLIENT_ID;
     const redirectUri = encodeURIComponent(
-      `${window.location.origin}/html-mail/auth/gitee/callback`
+      `${window.location.origin}/auth/gitee/callback`
     );
     window.location.href = `https://gitee.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
   };
