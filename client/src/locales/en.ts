@@ -7,7 +7,7 @@ export default {
   },
   auth: {
     github: 'GitHub Auth',
-    gitee: 'Gitee Auth',
+    gitee: 'Auth',
     needAuth: 'Quick configuration requires third-party authentication',
     authenticated: 'Authenticated via {{platform}} - {{name}}',
     expiresIn: 'Authentication expires in: {{time}}',

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Space, Typography } from "antd";
 import { GithubOutlined } from "@ant-design/icons";
 import { useTranslation } from 'react-i18next';
-import { User } from "../types";
+import { User } from "../../types";
 
 const AuthStatus: React.FC = () => {
   const { t } = useTranslation();
@@ -68,7 +68,7 @@ const AuthStatus: React.FC = () => {
   const handleGiteeLogin = () => {
     const clientId = import.meta.env.VITE_GITEE_OAUTH_CLIENT_ID;
     const redirectUri = encodeURIComponent(
-      `${window.location.origin}/auth/gitee/callback`
+      `${window.location.origin}/html-mail/auth/gitee/callback`
     );
     window.location.href = `https://gitee.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`;
   };
@@ -125,9 +125,7 @@ const AuthStatus: React.FC = () => {
               alt="gitee"
               style={{
                 height: 14,
-                marginRight: 8,
                 position: "relative",
-                top: -1,
               }}
             />
           }

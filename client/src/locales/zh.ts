@@ -7,7 +7,7 @@ export default {
   },
   auth: {
     github: 'GitHub 认证',
-    gitee: 'Gitee 认证',
+    gitee: '认证',
     needAuth: '使用快捷配置需要先进行第三方认证',
     authenticated: '已通过 {{platform}} 认证 - {{name}}',
     expiresIn: '认证有效期还剩：{{time}}',
