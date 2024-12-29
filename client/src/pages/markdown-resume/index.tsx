@@ -181,20 +181,7 @@ const MarkdownResume: React.FC = () => {
             className="markdown-content"
             ref={previewRef}
           >
-            <ReactMarkdown
-              rehypePlugins={[rehypeRaw, rehypeSanitize]}
-              components={{
-                h1: ({ node, ...props }) => (
-                  <h1 style={{ borderBottom: "1px solid #eee" }} {...props} />
-                ),
-                h2: ({ node, ...props }) => (
-                  <h2 style={{ borderBottom: "1px solid #eee" }} {...props} />
-                ),
-                a: ({ node, ...props }) => (
-                  <a target="_blank" rel="noopener noreferrer" {...props} />
-                ),
-              }}
-            >
+            <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
               {markdown}
             </ReactMarkdown>
           </div>
