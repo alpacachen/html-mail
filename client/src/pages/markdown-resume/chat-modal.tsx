@@ -1,11 +1,13 @@
 import {
   ArrowLeftOutlined,
-  ArrowRightOutlined,
+  CloseOutlined,
   EnterOutlined,
+  MinusOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Input, Modal, Popover, Tag, Typography } from "antd";
 import classNames from "classnames";
-import { FC, useState } from "react";
+import { FC, useRef, useState, KeyboardEvent } from "react";
 import { useEvent, useTimeoutFn } from "react-use";
 
 interface StepBarProps {
@@ -14,13 +16,22 @@ interface StepBarProps {
 }
 
 const CommonInput: FC<{
-  onSubmit: () => void;
+  onSubmit?: (value: string) => void;
+  onChange?: (value: string) => void;
   className?: string;
   validator: (value?: string) => boolean;
   placeholder?: string;
-}> = ({ onSubmit, className, validator, placeholder }) => {
+  defaultValue: string;
+}> = ({
+  onSubmit,
+  onChange,
+  className,
+  validator,
+  placeholder,
+  defaultValue,
+}) => {
   const [isComposing, setIsComposing] = useState(false);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(defaultValue || "");
   const [shaking, setShaking] = useState(false);
   useTimeoutFn(
     () => {
@@ -31,19 +42,22 @@ const CommonInput: FC<{
   return (
     <Input
       className={classNames(
-        "ring-0px! b-b-3 b-solid b-t-0 b-r-0 b-l-0 p-0 m-0 text-9 font-600 bg-transparent!",
+        "ring-0px! b-b-3 b-solid b-t-0 b-r-0 b-l-0 p-0 m-0 text-9 font-600 bg-transparent! text-center",
         className,
         shaking && "animate-shake-x"
       )}
       autoFocus
+      defaultValue={defaultValue}
       placeholder={placeholder}
       value={value}
-      onChange={(e) => setValue(e.target.value)}
-      ref={(input) => input && input.focus()}
+      onChange={(e) => {
+        setValue(e.target.value);
+        onChange?.(e.target.value);
+      }}
       onPressEnter={() => {
         if (!isComposing) {
           if (validator(value.trim())) {
-            onSubmit();
+            onSubmit?.(value.trim());
           } else {
             setShaking(true);
           }
@@ -69,9 +83,9 @@ const Step0: FC<{ next: () => void }> = ({ next }) => {
       <Typography.Paragraph className="text-7">
         接下来我会通过提问沟通的方式一步步引导你完善简历。
       </Typography.Paragraph>
-      <Button type="primary" onClick={next}>
-        开始 <EnterOutlined />
-      </Button>
+      <Typography.Paragraph className="text-7 animate-bounce">
+        <EnterOutlined />
+      </Typography.Paragraph>
     </div>
   );
 };
@@ -80,7 +94,13 @@ const Setp1: FC<StepBarProps> = ({ next }) => {
   return (
     <div className="animate-fade-in">
       <Typography.Title className="text-9">你的名字是？</Typography.Title>
-      <CommonInput className="w-50" onSubmit={next} validator={Boolean} />
+      <CommonInput
+        className="w-50"
+        onSubmit={next}
+        validator={Boolean}
+        placeholder="你的名字"
+        defaultValue="虚竹"
+      />
     </div>
   );
 };
@@ -92,8 +112,9 @@ const Setp2: FC<StepBarProps> = ({ next }) => {
       <Typography.Title className="text-9">
         今年
         <CommonInput
+          defaultValue="28"
           validator={(value) => Number.isInteger(Number(value))}
-          className="w-10 text-center"
+          className="w-14 text-center"
           onSubmit={next}
         />
         岁
@@ -152,18 +173,6 @@ const JobPopover: FC<{ onChange: (value: number) => void }> = ({
   );
 };
 
-const NextButton: FC<{ onClick: () => void }> = ({ onClick }) => {
-  return (
-    <Button
-      className="absolute right-10 top-10"
-      shape="circle"
-      onClick={onClick}
-    >
-      <ArrowRightOutlined />
-    </Button>
-  );
-};
-
 const Step3: FC<StepBarProps> = ({ next }) => {
   const [level, setLevel] = useState(0);
   const [job, setJob] = useState(0);
@@ -176,7 +185,6 @@ const Step3: FC<StepBarProps> = ({ next }) => {
   useEvent("keydown", handleEnter);
   return (
     <div className="animate-fade-in">
-      <NextButton onClick={next} />
       <Typography.Title className="text-9">
         期望寻求一份
         <Popover content={<LevelPopover onChange={setLevel} />}>
@@ -197,14 +205,150 @@ const Step3: FC<StepBarProps> = ({ next }) => {
 
 const Step4: FC<StepBarProps> = ({ next }) => {
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in flex flex-col gap-2 justify-center items-center">
       <Typography.Title className="text-9">怎么联系你？</Typography.Title>
       <CommonInput
+        defaultValue="虚竹@少林寺.cn"
         className="w-60 text-6!"
         placeholder="email or phone"
         onSubmit={next}
         validator={Boolean}
       />
+    </div>
+  );
+};
+
+const Step5: FC<StepBarProps> = ({ next }) => {
+  interface Education {
+    start: string;
+    end: string;
+    school: string;
+    degree: string;
+  }
+  const defaultPrimaryEducation = {
+    start: "2018",
+    end: "2021",
+    school: "灵鹫宫",
+    degree: "硕士",
+  };
+
+  const [educations, _setEducations] = useState<Education[]>([
+    {
+      start: "2013",
+      end: "2017",
+      school: "少林寺",
+      degree: "学士",
+    },
+    defaultPrimaryEducation,
+  ]);
+
+  const [shaking, setShaking] = useState(false);
+  useTimeoutFn(
+    () => {
+      setShaking(false);
+    },
+    shaking ? 1000 : 0
+  );
+
+  const setEducations = (index: number, education: Education) => {
+    const newEducations = [...educations];
+    newEducations[index] = education;
+    _setEducations(newEducations);
+  };
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEvent("keydown", (e: KeyboardEvent) => {
+    // 如果发起元素不是当前 step的，则过滤掉
+    console.log(e.target);
+    if (!ref.current?.contains(e.target as Node)) {
+      console.log("not in");
+      return;
+    }
+
+    if (e.key === "Enter") {
+      // educations 中每一条数据的每一项都不能为空
+      if (
+        educations.some((edu) => Object.values(edu).some((value) => !value))
+      ) {
+        setShaking(true);
+        return;
+      }
+      console.log(educations);
+      next();
+    }
+  });
+  return (
+    <div ref={ref} tabIndex={1} className="animate-fade-in h-full outline-none">
+      <div
+        className={classNames(
+          "flex flex-col gap-2 items-center h-full pt-10 box-border",
+          shaking && "animate-shake-x"
+        )}
+      >
+        <Typography.Title className="text-9">教育经历</Typography.Title>
+        {educations.map((edu, index) => {
+          return (
+            <div key={index} className="flex text-5 relative group">
+              {index == 0 && educations.length == 1 && (
+                <Button
+                  shape="circle"
+                  className="absolute -right-8 top-0 bottom-0 m-auto hidden group-hover:block animate-fade-in animate-duration-200"
+                  onClick={() =>
+                    _setEducations([...educations, defaultPrimaryEducation])
+                  }
+                >
+                  <PlusOutlined />
+                </Button>
+              )}
+              {index == 1 && (
+                <Button
+                  shape="circle"
+                  className="absolute -right-8 top-0 bottom-0 m-auto hidden group-hover:block animate-fade-in animate-duration-200"
+                  onClick={() => _setEducations(educations.slice(0, -1))}
+                >
+                  <CloseOutlined />
+                </Button>
+              )}
+              <CommonInput
+                defaultValue={edu.start}
+                validator={Boolean}
+                className="w-25 text-center text-5!"
+                onChange={(value) =>
+                  setEducations(index, { ...edu, start: value })
+                }
+              />
+              —
+              <CommonInput
+                defaultValue={edu.end}
+                validator={Boolean}
+                className="w-25 text-center text-5!"
+                onChange={(value) =>
+                  setEducations(index, { ...edu, end: value })
+                }
+              />
+              在
+              <CommonInput
+                defaultValue={edu.school}
+                validator={Boolean}
+                className="w-38 text-center text-5!"
+                onChange={(value) =>
+                  setEducations(index, { ...edu, school: value })
+                }
+              />
+              ， 获得
+              <CommonInput
+                defaultValue={edu.degree}
+                validator={Boolean}
+                className="w-12 text-center text-5!"
+                onChange={(value) =>
+                  setEducations(index, { ...edu, degree: value })
+                }
+              />
+              学位
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -240,6 +384,7 @@ export default function ChatModal() {
         {step === 2 && <Setp2 next={next} prev={prev} />}
         {step === 3 && <Step3 next={next} prev={prev} />}
         {step === 4 && <Step4 next={next} prev={prev} />}
+        {step === 5 && <Step5 next={next} prev={prev} />}
       </div>
     </Modal>
   );
