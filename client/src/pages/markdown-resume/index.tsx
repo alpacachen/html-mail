@@ -8,6 +8,7 @@ import { FilePdfOutlined } from "@ant-design/icons";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./style.css";
+import ChatModal from "./chat-modal";
 
 const { TextArea } = Input;
 
@@ -115,79 +116,82 @@ const MarkdownResume: React.FC = () => {
   }, []);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {contextHolder}
+    <>
+      <ChatModal />
       <div
         style={{
-          padding: "8px 16px",
-          background: "#fff",
-          borderBottom: "1px solid #eee",
+          width: "100%",
+          height: "100vh",
           display: "flex",
-          justifyContent: "flex-end",
+          flexDirection: "column",
         }}
       >
-        <Button
-          type="primary"
-          icon={<FilePdfOutlined />}
-          onClick={handleSavePDF}
-          loading={saving}
+        {contextHolder}
+        <div
+          style={{
+            padding: "8px 16px",
+            background: "#fff",
+            borderBottom: "1px solid #eee",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
         >
-          保存为 PDF
-        </Button>
-      </div>
-      <Split
-        sizes={[50, 50]}
-        minSize={300}
-        expandToMin={false}
-        gutterSize={10}
-        gutterAlign="center"
-        snapOffset={30}
-        dragInterval={1}
-        direction="horizontal"
-        cursor="col-resize"
-        style={{ flex: 1 }}
-        className="split-container"
-      >
-        <div className="editor-pane">
-          <TextArea
-            value={markdown}
-            onChange={(e) => setMarkdown(e.target.value)}
-            style={{
-              height: "100%",
-              resize: "none",
-              border: "none",
-              outline: "none",
-              padding: "20px",
-              fontSize: "14px",
-              lineHeight: "1.6",
-              fontFamily: "monospace",
-            }}
-            placeholder="输入 Markdown 内容..."
-          />
-        </div>
-        <div id="preview-pane" className="preview-pane">
-          <div
-            id="markdown-content"
-            style={{
-              zoom: zoom ?? undefined,
-            }}
-            className="markdown-content"
-            ref={previewRef}
+          <Button
+            type="primary"
+            icon={<FilePdfOutlined />}
+            onClick={handleSavePDF}
+            loading={saving}
           >
-            <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
-              {markdown}
-            </ReactMarkdown>
-          </div>
+            保存为 PDF
+          </Button>
         </div>
-      </Split>
-    </div>
+        <Split
+          sizes={[50, 50]}
+          minSize={300}
+          expandToMin={false}
+          gutterSize={10}
+          gutterAlign="center"
+          snapOffset={30}
+          dragInterval={1}
+          direction="horizontal"
+          cursor="col-resize"
+          style={{ flex: 1 }}
+          className="split-container"
+        >
+          <div className="editor-pane">
+            <TextArea
+              value={markdown}
+              onChange={(e) => setMarkdown(e.target.value)}
+              style={{
+                height: "100%",
+                resize: "none",
+                border: "none",
+                outline: "none",
+                padding: "20px",
+                fontSize: "14px",
+                lineHeight: "1.6",
+                fontFamily: "monospace",
+              }}
+              placeholder="输入 Markdown 内容..."
+            />
+          </div>
+          <div id="preview-pane" className="preview-pane">
+            <div
+              id="markdown-content"
+              style={{
+                zoom: zoom ?? undefined,
+              }}
+              className="markdown-content"
+              ref={previewRef}
+            >
+              <ReactMarkdown rehypePlugins={[rehypeRaw, rehypeSanitize]}>
+                {markdown}
+              </ReactMarkdown>
+            </div>
+          </div>
+        </Split>
+      </div>
+    </>
   );
 };
 
