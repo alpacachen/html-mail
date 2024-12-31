@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Popover, Tag, Typography } from "antd";
 import classNames from "classnames";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useTimeoutFn } from "react-use";
 import { CareerStepGuide, EditCareer } from "./career-step";
 import { CommonInput } from "./helpers";
@@ -369,9 +369,14 @@ const Step6: FC<StepBarProps> = ({ next }) => {
 
 export default function ChatModal() {
   const [open, setOpen] = useState(true);
-  const [step, setStep] = useState(8);
+  const [step, setStep] = useState(0);
   const next = () => setStep(step + 1);
   const prev = () => setStep(Math.max(0, step - 1));
+  useEffect(() => {
+    if (step === 9) {
+      setOpen(false);
+    }
+  }, [open, step]);
   return (
     <Modal
       open={open}

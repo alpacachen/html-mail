@@ -9,6 +9,7 @@ const suggestions = [
   "负责团队工作分配，项目管理",
   "在公司内主讲多次分享",
   "代码测试覆盖率达到 85%",
+  "uniapp",
   "讨论、设计并开发了xx 平台，使得xx 效率提升了 50%",
   "在团队内推动了代码规范，提升了代码质量",
   "帮助新人快速成长",
@@ -54,7 +55,11 @@ export function CareerStepGuide({ next }: StepBarProps) {
   );
 }
 
-const description = `工作职责: 负责少林寺编辑器日常需求迭代，性能优化，组件库搭建，官网，移动端开发，带领组员进行需求评审
+const careerTemplates: Career[] = [
+  {
+    company: "少林有限公司 - 编辑器开发",
+    time: "2020.10 - 至今",
+    description: `工作职责: 负责少林寺编辑器日常需求迭代，性能优化，组件库搭建，官网，移动端开发，带领组员进行需求评审
 语言工具: C++, React, Typescript, Next.js, tailwindcss, Jest 等
 工作亮点: 
 - 实现了design-to-code 功能，除了基础的颜色大小之外还支持了 autolayout to flex 的转换, 并且实现自动化检测脚本，做到对 figma 一比一还原
@@ -62,11 +67,26 @@ const description = `工作职责: 负责少林寺编辑器日常需求迭代，
 - 参与前端集成测试框架，支持 http，ws，说服团队摒弃单测全面拥抱集成测试，项目测试覆盖率达到 85% 以上
 - 发现了前端页面还原度不够的痛点，说服团队放弃使用 margin 布局，并且基于此理念开发组内设计稿转 html + tailwind 插件，整体提升了部门设计走查还原度
 - 负责开发公司官网，lighthouse 评分 95+，以及完全基于css 的响应式布局
-`;
+`,
+  },
+  {
+    company: "武当少儿有限公司 - 课件系统开发",
+    time: "2017.9-2020.1",
+    description: `工作职责: 参与了线上 1v1 课程的课件系统开发，包括插件系统，时间线的设计，回放功能等，很多细节因为时间久远已经忘了
+语言工具: Vue2, Typescript
+工作亮点: 
+- 参与了线上 1v1 课程的课件系统开发，包括插件系统，时间线的设计，回放功能等
+- 参与了插件系统的设计与开发，包括插件的安装，卸载，更新，以及插件的权限管理
+- 参与了时间线的设计与开发，包括时间线的拖拽，缩放，以及时间线的编辑
+- 参与了回放功能的设计与开发，包括回放的录制，回放的播放，以及回放的编辑
+`,
+  },
+];
 
-const CareerForm: FC<{ onFinish: (values: Career) => void }> = ({
-  onFinish,
-}) => {
+const CareerForm: FC<{
+  defaultValues: Career;
+  onFinish: (values: Career) => void;
+}> = ({ defaultValues, onFinish }) => {
   const [form] = Form.useForm();
 
   return (
@@ -97,7 +117,7 @@ const CareerForm: FC<{ onFinish: (values: Career) => void }> = ({
           name="description"
         >
           <Input.TextArea
-            placeholder={description}
+            placeholder="使用markdown列表形式，言简意赅描述你的工作职责，工作亮点，以及你为公司带来的价值，最好标准是可以量化的"
             rows={10}
             className="lh-7! text-4! "
           />
@@ -109,11 +129,7 @@ const CareerForm: FC<{ onFinish: (values: Career) => void }> = ({
               shape="circle"
               icon={<EditOutlined />}
               onClick={() => {
-                form.setFieldsValue({
-                  description: description,
-                  company: "少林有限公司 - 编辑器开发",
-                  time: "2017.9-2020.1",
-                });
+                form.setFieldsValue(defaultValues);
               }}
             />
           </Popover>
@@ -147,12 +163,12 @@ const CareerForm: FC<{ onFinish: (values: Career) => void }> = ({
 export function EditCareer({ next }: StepBarProps) {
   const [careers, setCareers] = useState<Career[]>([]);
   const [showQuestion, setShowQuestion] = useState(false);
-  console.log(careers);
 
   return (
     <div className="animate-fade-in h-full w-full flex gap-4 pl-15 pr-5 flex-col items-center justify-center">
       {!showQuestion ? (
         <CareerForm
+          defaultValues={careerTemplates[careers.length % 2]}
           onFinish={(values) => {
             setCareers([...careers, values]);
             setShowQuestion(true);

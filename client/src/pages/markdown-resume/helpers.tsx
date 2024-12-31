@@ -4,7 +4,8 @@ import { FC, useState } from "react";
 import { useTimeoutFn } from "react-use";
 
 export interface Career {
-  title: string;
+  company: string;
+  time: string;
   description: string;
 }
 
