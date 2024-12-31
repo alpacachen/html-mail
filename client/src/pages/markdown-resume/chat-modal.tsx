@@ -1,81 +1,19 @@
 import {
   ArrowLeftOutlined,
   CloseOutlined,
-  EnterOutlined,
   GithubOutlined,
   HomeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Modal, Popover, Tag, Typography } from "antd";
 import classNames from "classnames";
-import { FC, useRef, useState, KeyboardEvent } from "react";
-import { useEvent, useTimeoutFn } from "react-use";
-
-interface StepBarProps {
-  next: () => void;
-  prev: () => void;
-}
-
-const CommonInput: FC<{
-  onSubmit?: (value: string) => void;
-  onChange?: (value: string) => void;
-  className?: string;
-  validator: (value?: string) => boolean;
-  placeholder?: string;
-  defaultValue: string;
-}> = ({
-  onSubmit,
-  onChange,
-  className,
-  validator,
-  placeholder,
-  defaultValue,
-}) => {
-  const [isComposing, setIsComposing] = useState(false);
-  const [value, setValue] = useState(defaultValue || "");
-  const [shaking, setShaking] = useState(false);
-  useTimeoutFn(
-    () => {
-      setShaking(false);
-    },
-    shaking ? 1000 : 0
-  );
-  return (
-    <Input
-      className={classNames(
-        "ring-0px! b-b-3 b-solid b-t-0 b-r-0 b-l-0 p-0 m-0 text-9 font-600 bg-transparent! text-center",
-        className,
-        shaking && "animate-shake-x"
-      )}
-      autoFocus
-      defaultValue={defaultValue}
-      placeholder={placeholder}
-      value={value}
-      onChange={(e) => {
-        setValue(e.target.value);
-        onChange?.(e.target.value);
-      }}
-      onPressEnter={() => {
-        if (!isComposing) {
-          if (validator(value.trim())) {
-            onSubmit?.(value.trim());
-          } else {
-            setShaking(true);
-          }
-        }
-      }}
-      onCompositionStart={() => setIsComposing(true)}
-      onCompositionEnd={() => setIsComposing(false)}
-    />
-  );
-};
+import { FC, useRef, useState } from "react";
+import { useTimeoutFn } from "react-use";
+import { CareerStepGuide, EditCareer } from "./career-step";
+import { CommonInput } from "./helpers";
+import { StepBarProps } from "./helpers";
 
 const Step0: FC<{ next: () => void }> = ({ next }) => {
-  useEvent("keydown", (e) => {
-    if (e.key === "Enter") {
-      next();
-    }
-  });
   return (
     <div className="flex flex-col items-center justify-center">
       <Typography.Title className="text-9">
@@ -84,9 +22,9 @@ const Step0: FC<{ next: () => void }> = ({ next }) => {
       <Typography.Paragraph className="text-7">
         接下来我会通过提问沟通的方式一步步引导你完善简历。
       </Typography.Paragraph>
-      <Typography.Paragraph className="text-7 animate-bounce">
-        <EnterOutlined />
-      </Typography.Paragraph>
+      <Button type="primary" onClick={next} size="large">
+        开始
+      </Button>
     </div>
   );
 };
@@ -177,15 +115,9 @@ const JobPopover: FC<{ onChange: (value: number) => void }> = ({
 const Step3: FC<StepBarProps> = ({ next }) => {
   const [level, setLevel] = useState(0);
   const [job, setJob] = useState(0);
-  // 支持 enter 下一步
-  const handleEnter = (e: KeyboardEvent) => {
-    if (e.key === "Enter") {
-      next();
-    }
-  };
-  useEvent("keydown", handleEnter);
+
   return (
-    <div className="animate-fade-in">
+    <div className="animate-fade-in outline-none flex flex-col items-center justify-center gap-4">
       <Typography.Title className="text-9">
         期望寻求一份
         <Popover content={<LevelPopover onChange={setLevel} />}>
@@ -200,6 +132,9 @@ const Step3: FC<StepBarProps> = ({ next }) => {
         </Popover>
         工程师的工作
       </Typography.Title>
+      <Button type="primary" onClick={next} size="large">
+        下一步
+      </Button>
     </div>
   );
 };
@@ -258,24 +193,13 @@ const Step5: FC<StepBarProps> = ({ next }) => {
   };
   const ref = useRef<HTMLDivElement>(null);
 
-  useEvent("keydown", (e: KeyboardEvent) => {
-    // 如果发起元素不是当前 step的，则过滤掉
-    if (!ref.current?.contains(e.target as Node)) {
+  const handerNext = () => {
+    if (educations.some((edu) => Object.values(edu).some((value) => !value))) {
+      setShaking(true);
       return;
     }
-
-    if (e.key === "Enter") {
-      // educations 中每一条数据的每一项都不能为空
-      if (
-        educations.some((edu) => Object.values(edu).some((value) => !value))
-      ) {
-        setShaking(true);
-        return;
-      }
-      console.log(educations);
-      next();
-    }
-  });
+    next();
+  };
   return (
     <div ref={ref} tabIndex={1} className="animate-fade-in h-full outline-none">
       <div
@@ -347,6 +271,9 @@ const Step5: FC<StepBarProps> = ({ next }) => {
             </div>
           );
         })}
+        <Button type="primary" onClick={handerNext} size="large">
+          下一步
+        </Button>
       </div>
     </div>
   );
@@ -442,7 +369,7 @@ const Step6: FC<StepBarProps> = ({ next }) => {
 
 export default function ChatModal() {
   const [open, setOpen] = useState(true);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(8);
   const next = () => setStep(step + 1);
   const prev = () => setStep(Math.max(0, step - 1));
   return (
@@ -473,6 +400,8 @@ export default function ChatModal() {
         {step === 4 && <Step4 next={next} prev={prev} />}
         {step === 5 && <Step5 next={next} prev={prev} />}
         {step === 6 && <Step6 next={next} prev={prev} />}
+        {step === 7 && <CareerStepGuide next={next} prev={prev} />}
+        {step === 8 && <EditCareer next={next} prev={prev} />}
       </div>
     </Modal>
   );
