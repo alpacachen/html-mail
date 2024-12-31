@@ -10,7 +10,13 @@ import classNames from "classnames";
 import { FC, useEffect, useRef, useState } from "react";
 import { useTimeoutFn } from "react-use";
 import { CareerStepGuide, EditCareer } from "./career-step";
-import { CommonInput } from "./helpers";
+import {
+  ChatModalProvider,
+  CommonInput,
+  Education,
+  Resume,
+  useChatModal,
+} from "./helpers";
 import { StepBarProps } from "./helpers";
 
 const Step0: FC<{ next: () => void }> = ({ next }) => {
@@ -30,12 +36,18 @@ const Step0: FC<{ next: () => void }> = ({ next }) => {
 };
 
 const Setp1: FC<StepBarProps> = ({ next }) => {
+  const { setResume } = useChatModal();
   return (
     <div className="animate-fade-in">
       <Typography.Title className="text-9">你的名字是？</Typography.Title>
       <CommonInput
         className="w-50"
-        onSubmit={next}
+        onSubmit={(v) => {
+          setResume({
+            name: v,
+          });
+          next();
+        }}
         validator={Boolean}
         placeholder="你的名字"
         defaultValue="虚竹"
@@ -45,6 +57,7 @@ const Setp1: FC<StepBarProps> = ({ next }) => {
 };
 
 const Setp2: FC<StepBarProps> = ({ next }) => {
+  const { setResume } = useChatModal();
   // 询问工作年限
   return (
     <div className="animate-fade-in">
@@ -54,7 +67,12 @@ const Setp2: FC<StepBarProps> = ({ next }) => {
           defaultValue="28"
           validator={(value) => Number.isInteger(Number(value))}
           className="w-14 text-center"
-          onSubmit={next}
+          onSubmit={(value) => {
+            setResume({
+              age: value,
+            });
+            next();
+          }}
         />
         岁
       </Typography.Title>
@@ -115,7 +133,7 @@ const JobPopover: FC<{ onChange: (value: number) => void }> = ({
 const Step3: FC<StepBarProps> = ({ next }) => {
   const [level, setLevel] = useState(0);
   const [job, setJob] = useState(0);
-
+  const { setResume } = useChatModal();
   return (
     <div className="animate-fade-in outline-none flex flex-col items-center justify-center gap-4">
       <Typography.Title className="text-9">
@@ -132,7 +150,19 @@ const Step3: FC<StepBarProps> = ({ next }) => {
         </Popover>
         工程师的工作
       </Typography.Title>
-      <Button type="primary" onClick={next} size="large">
+      <Button
+        type="primary"
+        onClick={() => {
+          setResume({
+            expect: {
+              level: LevelList[level].value,
+              job: JobList[job].value,
+            },
+          });
+          next();
+        }}
+        size="large"
+      >
         下一步
       </Button>
     </div>
@@ -140,6 +170,7 @@ const Step3: FC<StepBarProps> = ({ next }) => {
 };
 
 const Step4: FC<StepBarProps> = ({ next }) => {
+  const { setResume } = useChatModal();
   return (
     <div className="animate-fade-in flex flex-col gap-2 justify-center items-center">
       <Typography.Title className="text-9">怎么联系你？</Typography.Title>
@@ -147,7 +178,12 @@ const Step4: FC<StepBarProps> = ({ next }) => {
         defaultValue="虚竹@少林寺.cn"
         className="w-60 text-6!"
         placeholder="email or phone"
-        onSubmit={next}
+        onSubmit={(value) => {
+          setResume({
+            contact: value,
+          });
+          next();
+        }}
         validator={Boolean}
       />
     </div>
@@ -155,12 +191,6 @@ const Step4: FC<StepBarProps> = ({ next }) => {
 };
 
 const Step5: FC<StepBarProps> = ({ next }) => {
-  interface Education {
-    start: string;
-    end: string;
-    school: string;
-    degree: string;
-  }
   const defaultPrimaryEducation = {
     start: "2018",
     end: "2021",
@@ -179,6 +209,7 @@ const Step5: FC<StepBarProps> = ({ next }) => {
   ]);
 
   const [shaking, setShaking] = useState(false);
+  const { setResume } = useChatModal();
   useTimeoutFn(
     () => {
       setShaking(false);
@@ -198,6 +229,9 @@ const Step5: FC<StepBarProps> = ({ next }) => {
       setShaking(true);
       return;
     }
+    setResume({
+      education: educations,
+    });
     next();
   };
   return (
@@ -326,6 +360,7 @@ const Step6: FC<StepBarProps> = ({ next }) => {
   useTimeoutFn(() => {
     setShowForm(true);
   }, 100);
+  const { setResume } = useChatModal();
   return (
     <div className="flex flex-col gap-4 w-full h-full justify-center items-center">
       <div className="pt-10">
@@ -335,11 +370,17 @@ const Step6: FC<StepBarProps> = ({ next }) => {
         </Typography.Text>
       </div>
       {showForm ? (
-        <Form
+        <Form<Resume["links"]>
           className="flex-1"
           autoFocus
           initialValues={defaultValues}
-          onFinish={next}
+          onFinish={(v) => {
+            console.log(v, "v");
+            setResume({
+              links: v,
+            });
+            next();
+          }}
         >
           {links.map((link, index) => (
             <Form.Item
@@ -367,47 +408,56 @@ const Step6: FC<StepBarProps> = ({ next }) => {
   );
 };
 
-export default function ChatModal() {
-  const [open, setOpen] = useState(true);
+export default function ChatModal(props: { onFinish: () => void }) {
+  const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const next = () => setStep(step + 1);
   const prev = () => setStep(Math.max(0, step - 1));
   useEffect(() => {
+    const resume = localStorage.getItem("resume");
+    if (!resume) {
+      setOpen(true);
+    }
+  }, []);
+  useEffect(() => {
     if (step === 9) {
       setOpen(false);
+      props.onFinish();
     }
-  }, [open, step]);
+  }, [open, props, step]);
   return (
-    <Modal
-      open={open}
-      maskClosable={false}
-      centered
-      width={800}
-      closable={false}
-      onCancel={() => setOpen(false)}
-      title={null}
-      footer={null}
-    >
-      <div className="h-100 flex items-center justify-center">
-        {step > 0 && (
-          <Button
-            shape="circle"
-            onClick={prev}
-            className="absolute left-10 top-10"
-          >
-            <ArrowLeftOutlined />
-          </Button>
-        )}
-        {step === 0 && <Step0 next={next} />}
-        {step === 1 && <Setp1 next={next} prev={prev} />}
-        {step === 2 && <Setp2 next={next} prev={prev} />}
-        {step === 3 && <Step3 next={next} prev={prev} />}
-        {step === 4 && <Step4 next={next} prev={prev} />}
-        {step === 5 && <Step5 next={next} prev={prev} />}
-        {step === 6 && <Step6 next={next} prev={prev} />}
-        {step === 7 && <CareerStepGuide next={next} prev={prev} />}
-        {step === 8 && <EditCareer next={next} prev={prev} />}
-      </div>
-    </Modal>
+    <ChatModalProvider>
+      <Modal
+        open={open}
+        maskClosable={false}
+        centered
+        width={800}
+        closable={false}
+        onCancel={() => setOpen(false)}
+        title={null}
+        footer={null}
+      >
+        <div className="h-100 flex items-center justify-center">
+          {step > 0 && (
+            <Button
+              shape="circle"
+              onClick={prev}
+              className="absolute left-10 top-10"
+            >
+              <ArrowLeftOutlined />
+            </Button>
+          )}
+          {step === 0 && <Step0 next={next} />}
+          {step === 1 && <Setp1 next={next} prev={prev} />}
+          {step === 2 && <Setp2 next={next} prev={prev} />}
+          {step === 3 && <Step3 next={next} prev={prev} />}
+          {step === 4 && <Step4 next={next} prev={prev} />}
+          {step === 5 && <Step5 next={next} prev={prev} />}
+          {step === 6 && <Step6 next={next} prev={prev} />}
+          {step === 7 && <CareerStepGuide next={next} prev={prev} />}
+          {step === 8 && <EditCareer next={next} prev={prev} />}
+        </div>
+      </Modal>
+    </ChatModalProvider>
   );
 }

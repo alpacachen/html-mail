@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect } from "react";
 import Split from "react-split";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -9,6 +9,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import "./style.css";
 import ChatModal from "./chat-modal";
+import { resumeDataToMarkdown } from "./helpers";
 
 const { TextArea } = Input;
 
@@ -115,9 +116,21 @@ const MarkdownResume: React.FC = () => {
     });
   }, []);
 
+  const onChatFinish = () => {
+    const resume = localStorage.getItem("resume");
+    if (!resume) {
+      return;
+    }
+    const resumeData = JSON.parse(resume);
+    setMarkdown(resumeDataToMarkdown(resumeData));
+  };
+  useEffect(() => {
+    onChatFinish();
+  }, []);
+
   return (
     <>
-      <ChatModal />
+      <ChatModal onFinish={onChatFinish} />
       <div
         style={{
           width: "100%",

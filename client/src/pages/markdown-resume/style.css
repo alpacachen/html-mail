@@ -33,6 +33,8 @@
   background: white;
   height: 297mm;
   width: 210mm;
+  line-height: 1.6;
+  padding: 10px 40px;
   margin: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;

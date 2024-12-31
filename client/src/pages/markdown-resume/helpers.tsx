@@ -1,7 +1,86 @@
 import { Input } from "antd";
 import classNames from "classnames";
+import constate from "constate";
 import { FC, useState } from "react";
 import { useTimeoutFn } from "react-use";
+
+export interface Education {
+  start: string;
+  end: string;
+  school: string;
+  degree: string;
+}
+export interface Resume {
+  name: string;
+  age: string;
+  expect: {
+    level: string;
+    job: string;
+  };
+  contact: string;
+  education: Education[];
+  links: {
+    github?: string;
+    juejin?: string;
+    home?: string;
+  };
+  careers: Career[];
+}
+
+export const resumeDataToMarkdown = (data: Resume) => {
+  return `# ${data.name} - ${data.expect.level}${data.expect.job}工程师 - ${
+    data.contact
+  }
+
+## 教育经历
+
+${data.education
+  .map(
+    (item) =>
+      `- <span style="display: flex; justify-content: space-between;">${item.start} - ${item.end} ${item.school}  ${item.degree} </span>`
+  )
+  .join("\n")}
+
+## 工作经历
+
+${data.careers
+  .map((item) => `${item.company} - ${item.time} - ${item.description}`)
+  .join("\n")}
+`;
+};
+
+const useHook = () => {
+  const [resume, _setResume] = useState<Resume>({
+    name: "",
+    age: "",
+    expect: {
+      level: "",
+      job: "",
+    },
+    contact: "",
+    education: [],
+    links: {},
+    careers: [],
+  });
+  console.log(resume, "resume");
+  const setResume = (data: Partial<Resume>) => {
+    _setResume((prev) => {
+      const _data = {
+        ...prev,
+        ...data,
+      };
+      localStorage.setItem("resume", JSON.stringify(_data));
+      return _data;
+    });
+  };
+
+  return {
+    resume,
+    setResume,
+  };
+};
+
+export const [ChatModalProvider, useChatModal] = constate(useHook);
 
 export interface Career {
   company: string;
