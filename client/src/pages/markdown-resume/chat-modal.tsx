@@ -2,10 +2,11 @@ import {
   ArrowLeftOutlined,
   CloseOutlined,
   EnterOutlined,
-  MinusOutlined,
+  GithubOutlined,
+  HomeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { Button, Input, Modal, Popover, Tag, Typography } from "antd";
+import { Button, Form, Input, Modal, Popover, Tag, Typography } from "antd";
 import classNames from "classnames";
 import { FC, useRef, useState, KeyboardEvent } from "react";
 import { useEvent, useTimeoutFn } from "react-use";
@@ -259,9 +260,7 @@ const Step5: FC<StepBarProps> = ({ next }) => {
 
   useEvent("keydown", (e: KeyboardEvent) => {
     // 如果发起元素不是当前 step的，则过滤掉
-    console.log(e.target);
     if (!ref.current?.contains(e.target as Node)) {
-      console.log("not in");
       return;
     }
 
@@ -281,7 +280,7 @@ const Step5: FC<StepBarProps> = ({ next }) => {
     <div ref={ref} tabIndex={1} className="animate-fade-in h-full outline-none">
       <div
         className={classNames(
-          "flex flex-col gap-2 items-center h-full pt-10 box-border",
+          "flex flex-col gap-8 items-center h-full pt-10 box-border",
           shaking && "animate-shake-x"
         )}
       >
@@ -353,6 +352,94 @@ const Step5: FC<StepBarProps> = ({ next }) => {
   );
 };
 
+const JuejinIcon = () => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 36 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M17.5875 6.77268L21.8232 3.40505L17.5875 0.00748237L17.5837 0L13.3555 3.39757L17.5837 6.76894L17.5875 6.77268ZM17.5863 17.3955H17.59L28.5161 8.77432L25.5526 6.39453L17.59 12.6808H17.5863L17.5825 12.6845L9.61993 6.40201L6.66016 8.78181L17.5825 17.3992L17.5863 17.3955ZM17.5828 23.2891L17.5865 23.2854L32.2133 11.7456L35.1768 14.1254L28.5238 19.3752L17.5865 28L0.284376 14.3574L0 14.1291L2.95977 11.7531L17.5828 23.2891Z"
+      fill="#1E80FF"
+    />
+  </svg>
+);
+
+const Step6: FC<StepBarProps> = ({ next }) => {
+  const links = [
+    {
+      icon: <GithubOutlined className="text-6!" />,
+      key: "github",
+      placeholder: "github",
+      value: "https://github.com/xuzhu",
+    },
+    {
+      icon: <JuejinIcon />,
+      key: "juejin",
+      placeholder: "https://juejin.cn/user/xxxx",
+      value: "https://juejin.cn/user/782508011819847",
+    },
+    {
+      icon: <HomeOutlined className="text-6!" />,
+      key: "home",
+      placeholder: "个人主页",
+      value: "",
+    },
+  ];
+  const defaultValues = links
+    .map((link) => ({
+      [link.key]: link.value,
+    }))
+    .reduce((prev, curr) => ({ ...prev, ...curr }), {});
+  const [showForm, setShowForm] = useState(false);
+  useTimeoutFn(() => {
+    setShowForm(true);
+  }, 100);
+  return (
+    <div className="flex flex-col gap-4 w-full h-full justify-center items-center">
+      <div className="pt-10">
+        <Typography.Title className="text-9!">有作品展示吗？</Typography.Title>
+        <Typography.Text type="secondary">
+          比如 github主页，掘金专栏，个人网站
+        </Typography.Text>
+      </div>
+      {showForm ? (
+        <Form
+          className="flex-1"
+          autoFocus
+          initialValues={defaultValues}
+          onFinish={next}
+        >
+          {links.map((link, index) => (
+            <Form.Item
+              style={{
+                opacity: 0,
+                animation: "fade-in 0.5s ease-in-out forwards",
+                animationDelay: `${index * 0.2}s`,
+              }}
+              name={link.key}
+              label={link.icon}
+            >
+              <Input
+                autoFocus
+                className="w-60 text-4! ring-0px! b-b-3 b-solid b-t-0 b-r-0 b-l-0 p-0 m-0  font-600 bg-transparent!"
+                placeholder={link.placeholder}
+              />
+            </Form.Item>
+          ))}
+          <input type="submit" hidden />
+        </Form>
+      ) : (
+        <div className="flex-1"></div>
+      )}
+    </div>
+  );
+};
+
 export default function ChatModal() {
   const [open, setOpen] = useState(true);
   const [step, setStep] = useState(0);
@@ -385,6 +472,7 @@ export default function ChatModal() {
         {step === 3 && <Step3 next={next} prev={prev} />}
         {step === 4 && <Step4 next={next} prev={prev} />}
         {step === 5 && <Step5 next={next} prev={prev} />}
+        {step === 6 && <Step6 next={next} prev={prev} />}
       </div>
     </Modal>
   );
