@@ -1,0 +1,15 @@
+/* 编辑器样式 */
+.ant-input-textarea-show-count::after {
+  background: transparent;
+}
+
+.ant-input {
+  background: transparent !important;
+}
+.a4 {
+  width: 210mm;
+  height: 297mm;
+  background: #fff;
+  padding: 10mm 15mm 10mm 15mm;
+  box-sizing: border-box;
+}
