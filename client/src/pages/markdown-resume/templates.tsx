@@ -41,7 +41,7 @@ export const templates = [
     id: "3",
     name: "创意风格",
     description: "独特的设计布局，适合创意行业人士",
-    content: `<div align="center">
+    content: `
 
 # 王五
 ## UI设计师 / 前端开发
@@ -111,7 +111,7 @@ export const templates = [
     id: "5",
     name: "技能导向",
     description: "突出个人技能和专业认证的模板",
-    content: `<div class="text-center mb-8">
+    content: `
 
 # 孙七
 ## DevOps 工程师 / 云原生专家
@@ -169,5 +169,5 @@ export const templates = [
 - 技术战略规划
 - 预算及资源管理
 - 团队文化建设`,
-  }
+  },
 ];

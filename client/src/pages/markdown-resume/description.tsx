@@ -1,6 +1,12 @@
 import { Button, Typography } from "antd";
 import { Link } from "react-router-dom";
-import { RocketOutlined, EditOutlined, FileOutlined } from "@ant-design/icons";
+import {
+  RocketOutlined,
+  EditOutlined,
+  FileOutlined,
+  LockOutlined,
+  AppstoreOutlined,
+} from "@ant-design/icons";
 
 export const MarkdownResumeDescription = () => {
   return (
@@ -16,7 +22,10 @@ export const MarkdownResumeDescription = () => {
           <Typography.Paragraph className="text-6 text-gray-600 mt-4 animate-fade-in animate-delay-300">
             使用 Markdown 编写简历，支持实时预览和一键导出 PDF
           </Typography.Paragraph>
-          <Link to="/markdown-resume/template-list" className="inline-block mt-8">
+          <Link
+            to="/markdown-resume/template-list"
+            className="inline-block mt-8"
+          >
             <Button type="primary" size="large" className="shadow-lg">
               浏览简历模板
             </Button>
@@ -25,10 +34,10 @@ export const MarkdownResumeDescription = () => {
 
         {/* Features Section */}
         <div className="mt-32 animate-fade-in animate-delay-500">
-          <Typography.Title level={2} className="text-center mb-16">
+          <Typography.Title level={2} className="text-center">
             为什么选择我们？
           </Typography.Title>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mt-32">
             <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
               <div className="text-6xl mb-6 text-blue-500 group-hover:animate-bounce">
                 <EditOutlined />
@@ -60,6 +69,28 @@ export const MarkdownResumeDescription = () => {
               </div>
               <div className="text-gray-600">
                 一键导出高质量 PDF 文件，支持自定义纸张大小
+              </div>
+            </div>
+            <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
+              <div className="text-6xl mb-6 text-green-500 group-hover:animate-bounce">
+                <LockOutlined />
+              </div>
+              <div className="text-6 font-bold mb-4 bg-gradient-to-r from-green-500 to-teal-600 text-transparent bg-clip-text">
+                数据安全
+              </div>
+              <div className="text-gray-600">
+                完全客户端存储，支持离线使用，确保您的简历数据安全可控
+              </div>
+            </div>
+            <div className="text-center group hover:transform hover:scale-105 transition-all duration-300">
+              <div className="text-6xl mb-6 text-orange-500 group-hover:animate-bounce">
+                <AppstoreOutlined />
+              </div>
+              <div className="text-6 font-bold mb-4 bg-gradient-to-r from-orange-500 to-yellow-600 text-transparent bg-clip-text">
+                海量模板
+              </div>
+              <div className="text-gray-600">
+                提供丰富的简历模板库，持续更新，总有一款适合你
               </div>
             </div>
           </div>
