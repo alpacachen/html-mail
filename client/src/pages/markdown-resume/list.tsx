@@ -30,7 +30,7 @@ export const MarkdownResumeTemplateList = () => {
               className="group transform transition-all duration-300 hover:-translate-y-2"
               cover={
                 <div className="relative h-80 overflow-hidden bg-white">
-                  <div className="absolute inset-0 p-4 overflow-y-auto markdown-preview scale-40 origin-top">
+                  <div className="absolute bg-gray-100 inset-0 p-4 markdown-preview overflow-hidden origin-top">
                     <ReactMarkdown>{template.content}</ReactMarkdown>
                   </div>
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100">
@@ -42,9 +42,7 @@ export const MarkdownResumeTemplateList = () => {
                     >
                       预览
                     </Button>
-                    <Link
-                      to={`/markdown-resume/resume-edit?id=${template.id}`}
-                    >
+                    <Link to={`/markdown-resume/resume-edit?id=${template.id}`}>
                       <Button
                         type="primary"
                         icon={<EditOutlined />}

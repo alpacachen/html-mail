@@ -1,13 +1,11 @@
 import { useSearchParams } from "react-router-dom";
 import { templates } from "./templates";
-import { Button, Divider, Input, Space, message } from "antd";
+import { Button, Divider, Input, Space } from "antd";
 import { FilePdfOutlined } from "@ant-design/icons";
 import "./style.css";
-import { useLayoutEffect, useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-// import jsPDF from "jspdf";
-import * as htmlToImage from "html-to-image";
+import { useState, useEffect, useRef } from "react";
+import { A4Paper } from "./a4-paper";
+import { useReactToPrint } from "react-to-print";
 
 export const MarkdownResumeEdit = () => {
   const [searchParams] = useSearchParams();
@@ -21,48 +19,17 @@ export const MarkdownResumeEdit = () => {
     localStorage.setItem("markdown-resume-content", content);
   }, [content]);
 
-  useLayoutEffect(() => {
-    const a4 = document.getElementById("a4");
-    if (!a4) return;
-    const a4Parent = a4.parentElement;
-    if (!a4Parent) return;
-    const a4ParentWidth = a4Parent.clientWidth;
-    const a4Width = a4.clientWidth;
-    const targetWidth = a4ParentWidth - 48;
-    const scale = targetWidth / a4Width;
-    a4.style.zoom = scale.toString();
-  }, []);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const [saving, setSaving] = useState(false);
+  const reactToPrintFn = useReactToPrint({ contentRef });
 
   const handleSavePDF = async () => {
-    const a4 = document.getElementById("a4");
-    if (!a4) return;
-
-    try {
-      setSaving(true);
-      message.loading("正在生成 PDF...");
-
-      const dataUrl = await htmlToImage.toBlob(a4, {
-        quality: 1.0,
-        pixelRatio: 2,
-        backgroundColor: "#ffffff",
-      });
-
-      if (!dataUrl) return;
-
-      // 预览图片
-      window.open(window.URL.createObjectURL(dataUrl));
-      return;
-    } catch (error) {
-      console.error("PDF generation error:", error);
-      message.error("PDF 生成失败，请重试");
-    } finally {
-      setSaving(false);
-    }
+    console.log(contentRef.current);
+    reactToPrintFn();
   };
+
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-500">
       {/* 顶部工具栏 */}
       <div className="h-14 bg-white flex items-center justify-between px-6 shadow-sm">
         <div className="text-lg font-medium">简历编辑器</div>
@@ -71,7 +38,6 @@ export const MarkdownResumeEdit = () => {
             type="primary"
             icon={<FilePdfOutlined />}
             onClick={handleSavePDF}
-            loading={saving}
             className="shadow-sm"
           >
             导出 PDF
@@ -81,13 +47,13 @@ export const MarkdownResumeEdit = () => {
       <Divider className="!my-0" />
 
       {/* 主编辑区域 */}
-      <div className="flex-1 h-0 flex">
+      <div className="flex-1 h-0 flex gap-4">
         {/* 左侧编辑器 */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 py-6 pl-6">
           <div className="h-full bg-white rounded-lg shadow-sm">
             <Input.TextArea
               value={content}
-              className="h-full! rounded-lg border-0 text-4 font-mono leading-relaxed resize-none"
+              className="h-full! text-4 font-mono leading-relaxed resize-none"
               placeholder="在此输入 Markdown 内容..."
               onChange={(e) => setContent(e.target.value)}
             />
@@ -95,13 +61,8 @@ export const MarkdownResumeEdit = () => {
         </div>
 
         {/* 右侧预览 */}
-        <div className="p-6 overflow-auto flex flex-col gap-6">
-          <div id="a4" className="a4">
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
-          </div>
-          <div id="a4" className="a4">
-            <ReactMarkdown rehypePlugins={[rehypeRaw]}>{content}</ReactMarkdown>
-          </div>
+        <div className="py-6 overflow-auto flex flex-col gap-6 pr-6 overflow-y-auto">
+          <A4Paper ref={contentRef} content={content} />
         </div>
       </div>
     </div>
