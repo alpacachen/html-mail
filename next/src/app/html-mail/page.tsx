@@ -1,10 +1,9 @@
 "use client";
 
-import { Button, Card, Typography } from "antd";
+import { Button, Typography } from "antd";
 import {
   MailOutlined,
   RightOutlined,
-  AppstoreOutlined,
   ThunderboltOutlined,
   SafetyCertificateOutlined,
 } from "@ant-design/icons";
