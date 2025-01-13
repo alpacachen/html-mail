@@ -26,19 +26,17 @@ jobs:
     #     VITE_GITHUB_CLIENT_ID: ${{ secrets.GIT_OAUTH_CLIENT_ID }}
 
     # 构建服务端
-    # - name: Build Server
-    #   working-directory: ./server
-    #   run: |
-    #     npm install
-    #     npm run build
-    #     touch .env
-    #     echo GIT_OAUTH_CLIENT_ID="Ov23liTznPyWE9sBhb0W" >> .env
-    #     echo GIT_OAUTH_CLIENT_SECRET="3187041541fc31cdd137d933b98074098400e9c0" >> .env
-    #     echo JWT_SECRET="your-super-secret-key" >> .env
-    #     echo SMTP_HOST="smtp.qq.com" >> .env
-    #     echo SMTP_PORT="465" >> .env
-    #     echo SMTP_USER="302681871@qq.com" >> .env
-    #     echo SMTP_PASS="jpaawbfwispvbjca" >> .env
+    - name: Build Server
+      working-directory: ./server
+      run: |
+        touch .env
+        echo GIT_OAUTH_CLIENT_ID="${{ secrets.GIT_OAUTH_CLIENT_ID }}" >> .env
+        echo GIT_OAUTH_CLIENT_SECRET="${{ secrets.GIT_OAUTH_CLIENT_SECRET }}" >> .env
+        echo JWT_SECRET="${{ secrets.JWT_SECRET }}" >> .env
+        echo SMTP_HOST="${{ secrets.SMTP_HOST }}" >> .env
+        echo SMTP_PORT="${{ secrets.SMTP_PORT }}" >> .env
+        echo SMTP_USER="${{ secrets.SMTP_USER }}" >> .env
+        echo SMTP_PASS="${{ secrets.SMTP_PASS }}" >> .env
     # copy client到机器
     # - name: scp client
     #   uses: youxingz/sshpass-scp-action@v3
@@ -60,14 +58,14 @@ jobs:
     #     dist: "server/dist"
 
     # copy .env 到机器
-    # - name: scp .env
-    #   uses: youxingz/sshpass-scp-action@v3
-    #   with:
-    #     host: ${{ secrets.SERVER_HOST }}
-    #     user: ${{ secrets.SERVER_USERNAME }}
-    #     pass: ${{ secrets.SERVER_PASSWORD }}
-    #     src: "server/.env"
-    #     dist: "server"
+    - name: scp .env
+      uses: youxingz/sshpass-scp-action@v3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        user: ${{ secrets.SERVER_USERNAME }}
+        pass: ${{ secrets.SERVER_PASSWORD }}
+        src: "server/.env"
+        dist: "html-mail/server"
     
     # copy server/package.json 到机器
     # - name: scp server/package.json
