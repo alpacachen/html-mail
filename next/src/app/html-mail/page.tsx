@@ -3,6 +3,7 @@
 import { Button, Card, Typography } from "antd";
 import { MailOutlined, RightOutlined } from "@ant-design/icons";
 import Link from "next/link";
+
 import "@ant-design/v5-patch-for-react-19";
 
 const { Title, Paragraph } = Typography;
