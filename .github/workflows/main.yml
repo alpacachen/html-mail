@@ -93,10 +93,10 @@ jobs:
 
     # 拉代码
     - name: Restart Application
-      uses: invi5H/ssh-action@v1.0.0
+      uses: nekiro/ssh-job@v1.0.5
       with:
-        SSH_USER: ${{ secrets.SERVER_USERNAME }}
-        SSH_HOST: ${{ secrets.SERVER_HOST }}
-        SSH_KEY: ${{ secrets.PRIVATE_KEY }}
-    - run: pwd && ls && git pull
+        user: ${{ secrets.SERVER_USERNAME }}
+        host: ${{ secrets.SERVER_HOST }}
+        key: ${{ secrets.PRIVATE_KEY }}
+        command: pwd && git pull && git log
     
