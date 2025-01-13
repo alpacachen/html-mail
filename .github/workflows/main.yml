@@ -93,10 +93,18 @@ jobs:
 
     # 拉代码
     - name: Restart Application
-      uses: appleboy/ssh-action@v0.1.10
+      uses: matheusvanzan/sshpass-action@v1
       with:
-        username: ${{ secrets.SERVER_USERNAME }}
         host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
-        script: whoami && pwd && git pull && git log
+        run: |
+          pwd
+          whoami
+          cd /root/html-mail
+          git pull
+          cd next
+          npm i
+          npm run build
+          npm run start
     
