@@ -102,7 +102,7 @@ jobs:
           cd /root/html-mail
           git pull
           cd next
-          npm install
+          npm i
           npm run build
           npm run start
     
