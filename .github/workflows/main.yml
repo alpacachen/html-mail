@@ -99,7 +99,7 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          cd /html-mail
+          cd /root/html-mail
           git pull
           cd next
           npm install
