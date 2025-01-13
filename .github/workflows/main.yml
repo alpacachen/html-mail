@@ -98,5 +98,5 @@ jobs:
         SSH_USER: ${{ secrets.SERVER_USERNAME }}
         SSH_HOST: ${{ secrets.SERVER_HOST }}
         SSH_KEY: ${{ secrets.PRIVATE_KEY }}
-    - run: node -v
+    - run: ls
     
