@@ -6,7 +6,7 @@ test('send email', async ({ page }) => {
   await page.getByRole('button', { name: '开始使用' }).click();
 
   // 输入邮箱
-  await page.getByPlaceholder('请输入收件人邮箱').fill('chenxiangbj@kanyun.com');
+  await page.getByPlaceholder('请输入收件人邮箱').fill('ccc@qqqq.com');
 
   // 点击 发送邮件
   await page.getByRole('button', { name: '发送邮件' }).click();

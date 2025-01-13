@@ -70,7 +70,7 @@ export default function EmailCreator() {
 
   const handleSubmit = async (values: EmailForm) => {
     try {
-      const res = await fetch("http://localhost:3001/api/send-email", {
+      const res = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export default function EmailCreator() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to send email');
+        throw new Error("Failed to send email");
       }
 
       const data = await res.json();

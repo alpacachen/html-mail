@@ -99,13 +99,15 @@ jobs:
         username: ${{ secrets.SERVER_USERNAME }}
         password: ${{ secrets.SERVER_PASSWORD }}
         run: |
-          pwd
-          whoami
-          cd /root/html-mail
           source ~/.zshrc
+          cd /root/html-mail
           git pull
           cd next
           npm i
           npm run build
           pm2 reload my-nextjs-app
+          cd ../server
+          npm i
+          npm run build
+          pm2 reload my-nestjs-app
     
