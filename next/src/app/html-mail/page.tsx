@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Card, Typography } from "antd";
+import { Button, Typography } from "antd";
 import { MailOutlined, RightOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import "@ant-design/v5-patch-for-react-19";
@@ -50,7 +50,9 @@ export default function HtmlMailPage() {
       {/* Footer */}
       <footer className="py-8 bg-white border-t">
         <div className="container mx-auto px-4 text-center text-gray-600">
-          <Paragraph>© 2024 HTML Mail Template. All rights reserved.</Paragraph>
+          <Paragraph>
+            © 2024 HTML Mail Template. All rights reserved.
+          </Paragraph>
         </div>
       </footer>
     </div>
