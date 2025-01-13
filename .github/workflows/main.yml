@@ -98,12 +98,5 @@ jobs:
         SSH_USER: ${{ secrets.SERVER_USERNAME }}
         SSH_HOST: ${{ secrets.SERVER_HOST }}
         SSH_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: |
-          cd /root/html-mail
-          git pull
-          cd next
-          node -v
-          npm i
-          npm run build
-          npm run start
+    - run: node -v
     
