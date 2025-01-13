@@ -1,8 +1,0 @@
-/* 编辑器样式 */
-.ant-input-textarea-show-count::after {
-  background: transparent;
-}
-
-.ant-input {
-  background: transparent !important;
-}
