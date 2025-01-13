@@ -102,6 +102,7 @@ jobs:
           pwd
           whoami
           cd /root/html-mail
+          source ~/.zshrc
           git pull
           cd next
           npm i
