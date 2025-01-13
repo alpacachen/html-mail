@@ -107,5 +107,5 @@ jobs:
           cd next
           npm i
           npm run build
-          npm run start
+          pm2 reload my-nextjs-app
     
