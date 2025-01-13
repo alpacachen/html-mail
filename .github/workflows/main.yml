@@ -11,10 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+    # - name: Setup Node.js
+    #  uses: actions/setup-node@v3
+    #  with:
+    #    node-version: '18'
 
     # 构建客户端
     # - name: Build Client
@@ -93,11 +93,11 @@ jobs:
 
     # 拉代码
     - name: Restart Application
-      uses: matheusvanzan/sshpass-action@v1
+      uses: invi5H/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        password: ${{ secrets.SERVER_PASSWORD }}
+        SSH_USER: ${{ secrets.SERVER_USERNAME }}
+        SSH_HOST: ${{ secrets.SERVER_HOST }}
+        SSH_KEY: ${{ secrets.PRIVATE_KEY }}
         run: |
           cd /root/html-mail
           git pull
