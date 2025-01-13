@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useToast } from "@/components/ui/toast-context";
 
 interface EmailForm {
   to: string;
@@ -62,6 +63,7 @@ const DEFAULT_HTML_CONTENT = `
 `;
 
 export default function EmailCreator() {
+  const { showToast } = useToast();
   const [formData, setFormData] = useState<EmailForm>({
     to: "",
     subject: "欢迎订阅技术周刊！",
@@ -83,11 +85,11 @@ export default function EmailCreator() {
 
       if (!res.ok) throw new Error("Failed to send email");
 
-      alert("邮件发送成功！");
+      showToast("邮件发送成功！", "success");
       setFormData({ ...formData, to: "" });
     } catch (error) {
       console.error(error);
-      alert("邮件发送失败，请重试");
+      showToast("邮件发送失败，请重试", "error");
     } finally {
       setSending(false);
     }
