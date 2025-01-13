@@ -1,9 +1,6 @@
 "use client";
 
-import { Button, Form, Input, Card, message } from "antd";
-import { SendOutlined } from "@ant-design/icons";
-
-const { TextArea } = Input;
+import { useState } from "react";
 
 interface EmailForm {
   to: string;
@@ -65,94 +62,102 @@ const DEFAULT_HTML_CONTENT = `
 `;
 
 export default function EmailCreator() {
-  const [form] = Form.useForm<EmailForm>();
-  const [messageApi, contextHolder] = message.useMessage();
+  const [formData, setFormData] = useState<EmailForm>({
+    to: "",
+    subject: "欢迎订阅技术周刊！",
+    content: DEFAULT_HTML_CONTENT,
+  });
+  const [sending, setSending] = useState(false);
 
-  const handleSubmit = async (values: EmailForm) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
     try {
       const res = await fetch("/api/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(formData),
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to send email");
-      }
+      if (!res.ok) throw new Error("Failed to send email");
 
-      const data = await res.json();
-      console.log("发送邮件:", data);
-      messageApi.success("邮件发送成功！");
-      form.resetFields();
+      alert("邮件发送成功！");
+      setFormData({ ...formData, to: "" });
     } catch (error) {
       console.error(error);
-      messageApi.error("邮件发送失败，请重试");
+      alert("邮件发送失败，请重试");
+    } finally {
+      setSending(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      {contextHolder}
       <div className="max-w-3xl mx-auto px-4">
-        <Card title="创建邮件" className="shadow-sm">
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSubmit}
-            initialValues={{
-              to: "",
-              subject: "欢迎订阅技术周刊！",
-              content: DEFAULT_HTML_CONTENT,
-            }}
-            requiredMark={false}
-          >
-            <Form.Item
-              label="收件人"
-              name="to"
-              rules={[
-                { required: true, message: "请输入收件人邮箱" },
-                { type: "email", message: "请输入有效的邮箱地址" },
-              ]}
-            >
-              <Input placeholder="请输入收件人邮箱" />
-            </Form.Item>
-
-            <Form.Item
-              label="主题"
-              name="subject"
-              rules={[{ required: true, message: "请输入邮件主题" }]}
-            >
-              <Input placeholder="请输入邮件主题" />
-            </Form.Item>
-
-            <Form.Item
-              label="正文"
-              name="content"
-              rules={[{ required: true, message: "请输入邮件内容" }]}
-            >
-              <TextArea
-                placeholder="请输入邮件内容"
-                rows={12}
-                className="font-mono"
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h1 className="text-2xl font-bold mb-6">创建邮件</h1>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                收件人
+              </label>
+              <input
+                type="email"
+                required
+                value={formData.to}
+                onChange={(e) =>
+                  setFormData({ ...formData, to: e.target.value })
+                }
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="请输入收件人邮箱"
               />
-            </Form.Item>
+            </div>
 
-            <Form.Item>
-              <div className="flex justify-end">
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  icon={<SendOutlined />}
-                  size="large"
-                >
-                  发送邮件
-                </Button>
-              </div>
-            </Form.Item>
-          </Form>
-        </Card>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                主题
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.subject}
+                onChange={(e) =>
+                  setFormData({ ...formData, subject: e.target.value })
+                }
+                className="w-full px-3 py-2 border rounded-md"
+                placeholder="请输入邮件主题"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                正文
+              </label>
+              <textarea
+                required
+                value={formData.content}
+                onChange={(e) =>
+                  setFormData({ ...formData, content: e.target.value })
+                }
+                className="w-full px-3 py-2 border rounded-md font-mono"
+                rows={12}
+                placeholder="请输入邮件内容"
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={sending}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              >
+                {sending ? "发送中..." : "发送邮件"}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
