@@ -93,10 +93,10 @@ jobs:
 
     # 拉代码
     - name: Restart Application
-      uses: nekiro/ssh-job@v1.0.5
+      uses: appleboy/ssh-action@v0.1.10
       with:
-        user: ${{ secrets.SERVER_USERNAME }}
+        username: ${{ secrets.SERVER_USERNAME }}
         host: ${{ secrets.SERVER_HOST }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        command: pwd && git pull && git log
+        password: ${{ secrets.SERVER_PASSWORD }}
+        script: whoami && pwd && git pull && git log
     
