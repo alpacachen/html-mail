@@ -1,12 +1,7 @@
 "use client";
 
 import { Button, Typography } from "antd";
-import {
-  MailOutlined,
-  RightOutlined,
-  ThunderboltOutlined,
-  SafetyCertificateOutlined,
-} from "@ant-design/icons";
+import { MailOutlined, RightOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import "@ant-design/v5-patch-for-react-19";
 
