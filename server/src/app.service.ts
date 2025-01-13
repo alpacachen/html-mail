@@ -25,11 +25,11 @@ export class AppService {
     });
   }
 
-  async sendTestEmail(email: string, content: string, subject: string) {
+  async sendTestEmail(to: string, content: string, subject: string) {
     try {
       const mailOptions = {
         from: this.configService.get<string>('SMTP_USER'),
-        to: email,
+        to,
         subject: subject,
         html: content,
       };

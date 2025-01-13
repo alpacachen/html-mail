@@ -2,12 +2,12 @@ import {
   Controller,
   Post,
   Body,
-  UseGuards,
+  // UseGuards,
   Get,
   BadRequestException,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AuthGuard } from './auth/auth.guard';
+// import { AuthGuard } from './auth/auth.guard';
 
 @Controller()
 export class AppController {
@@ -18,20 +18,20 @@ export class AppController {
     return { message: 'hello email' };
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('send-email')
   async sendEmail(
-    @Body('email') email: string,
+    @Body('to') to: string,
     @Body('content') content: string,
     @Body('subject') subject: string,
   ) {
-    if (!email) {
+    if (!to) {
       throw new BadRequestException('Email is required');
     }
     if (!subject) {
       throw new BadRequestException('Subject is required');
     }
-    return await this.appService.sendTestEmail(email, content, subject);
+    return await this.appService.sendTestEmail(to, content, subject);
   }
 
   @Post('send-email-custom')

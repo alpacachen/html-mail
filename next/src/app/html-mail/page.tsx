@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
 import { Button, Card, Typography } from "antd";
-import { MailOutlined, RightOutlined, AppstoreOutlined, ThunderboltOutlined, SafetyCertificateOutlined } from "@ant-design/icons";
+import {
+  MailOutlined,
+  RightOutlined,
+  AppstoreOutlined,
+  ThunderboltOutlined,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
 import Link from "next/link";
+import '@ant-design/v5-patch-for-react-19';
 
 const { Title, Paragraph } = Typography;
 
@@ -21,7 +28,7 @@ export default function HtmlMailPage() {
             <Paragraph className="text-xl text-gray-600 mb-8">
               简单、快速地创建和发送专业的 HTML 邮件，支持模板管理和实时预览
             </Paragraph>
-            <Link href="/html-mail/editor">
+            <Link href="/html-mail/creator">
               <Button type="primary" size="large" icon={<RightOutlined />}>
                 开始使用
               </Button>
@@ -94,7 +101,7 @@ export default function HtmlMailPage() {
           <Paragraph className="text-xl text-gray-600 mb-8">
             立即体验专业的 HTML 邮件模板发送服务
           </Paragraph>
-          <Link href="/html-mail/editor">
+          <Link href="/html-mail/creator">
             <Button type="primary" size="large" icon={<MailOutlined />}>
               开始创建邮件
             </Button>
