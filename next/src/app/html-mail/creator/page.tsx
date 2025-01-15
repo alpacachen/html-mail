@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast-context";
+import { AuthButton } from "./auth-button";
 
 interface EmailConfig {
   host: string;
@@ -99,17 +100,17 @@ export default function EmailCreator() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
           body: JSON.stringify(formData),
         });
       }
-
-      if (!res.ok) throw new Error("Failed to send email");
+      if (!res.ok) throw new Error(res.statusText);
 
       showToast("邮件发送成功！", "success");
       setFormData({ ...formData, to: "" });
-    } catch (error) {
-      console.error(error);
+    } catch (e) {
+      console.info(e);
       showToast("邮件发送失败，请重试", "error");
     } finally {
       setSending(false);
@@ -125,17 +126,20 @@ export default function EmailCreator() {
           <div className="mb-8 p-4 bg-gray-50 rounded-lg">
             <div className="mb-4 font-medium">选择发送配置</div>
             <div className="space-y-4">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  checked={!formData.useCustomConfig}
-                  onChange={() =>
-                    setFormData({ ...formData, useCustomConfig: false })
-                  }
-                  className="form-radio"
-                />
-                <span>使用默认配置（需要认证）</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    checked={!formData.useCustomConfig}
+                    onChange={() =>
+                      setFormData({ ...formData, useCustomConfig: false })
+                    }
+                    className="form-radio"
+                  />
+                  <span>使用默认配置（需要认证，防止滥用）</span>
+                </label>
+                <AuthButton />
+              </div>
               <label className="flex items-center space-x-2">
                 <input
                   type="radio"
