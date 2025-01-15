@@ -3,10 +3,19 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast-context";
 
+interface EmailConfig {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+}
+
 interface EmailForm {
   to: string;
   subject: string;
   content: string;
+  useCustomConfig: boolean;
+  config?: EmailConfig;
 }
 
 const DEFAULT_HTML_CONTENT = `
@@ -68,6 +77,7 @@ export default function EmailCreator() {
     to: "",
     subject: "欢迎订阅技术周刊！",
     content: DEFAULT_HTML_CONTENT,
+    useCustomConfig: false,
   });
   const [sending, setSending] = useState(false);
 
@@ -75,13 +85,24 @@ export default function EmailCreator() {
     e.preventDefault();
     setSending(true);
     try {
-      const res = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      let res;
+      if (formData.useCustomConfig) {
+        res = await fetch("/api/send-email-custom", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+      } else {
+        res = await fetch("/api/send-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+      }
 
       if (!res.ok) throw new Error("Failed to send email");
 
@@ -100,7 +121,128 @@ export default function EmailCreator() {
       <div className="max-w-3xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h1 className="text-2xl font-bold mb-6">创建邮件</h1>
+
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <div className="mb-4 font-medium">选择发送配置</div>
+            <div className="space-y-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  checked={!formData.useCustomConfig}
+                  onChange={() =>
+                    setFormData({ ...formData, useCustomConfig: false })
+                  }
+                  className="form-radio"
+                />
+                <span>使用默认配置（需要认证）</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  checked={formData.useCustomConfig}
+                  onChange={() =>
+                    setFormData({ ...formData, useCustomConfig: true })
+                  }
+                  className="form-radio"
+                />
+                <span>使用自定义配置</span>
+              </label>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-6">
+            {formData.useCustomConfig && (
+              <div className="p-4 border rounded-lg space-y-4">
+                <div className="font-medium mb-2">SMTP 配置</div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      SMTP 服务器
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="例如：smtp.gmail.com"
+                      value={formData.config?.host || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          config: {
+                            ...formData.config,
+                            host: e.target.value,
+                          } as EmailConfig,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      端口
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      placeholder="例如：465"
+                      value={formData.config?.port || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          config: {
+                            ...formData.config,
+                            port: Number(e.target.value),
+                          } as EmailConfig,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      用户名
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="邮箱地址"
+                      value={formData.config?.user || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          config: {
+                            ...formData.config,
+                            user: e.target.value,
+                          } as EmailConfig,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      密码
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="授权码"
+                      value={formData.config?.pass || ""}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          config: {
+                            ...formData.config,
+                            pass: e.target.value,
+                          } as EmailConfig,
+                        })
+                      }
+                      className="w-full px-3 py-2 border rounded-md"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 收件人

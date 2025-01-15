@@ -42,7 +42,7 @@ export class AppService {
   }
 
   async sendCustomEmail(
-    email: string,
+    to: string,
     content: string,
     subject: string,
     config: EmailConfig,
@@ -66,7 +66,7 @@ export class AppService {
 
       const mailOptions = {
         from: config.user,
-        to: email,
+        to,
         subject: subject,
         html: content,
       };
