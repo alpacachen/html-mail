@@ -1,19 +1,18 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 
-export default function Page() {
+function CallbackHandler() {
   const [searchParams] = useSearchParams();
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const processedCode = useRef<string | null>(null);
 
   const handleGithubCallback = useCallback(async (code: string) => {
-    if (processedCode.current === code) {
-      return;
-    }
+    if (processedCode.current === code) return;
     processedCode.current = code;
+    
     try {
       const response = await fetch("/api/auth/github", {
         method: "POST",
@@ -22,9 +21,9 @@ export default function Page() {
         },
         body: JSON.stringify({ code }),
       });
-      if (!response.ok) {
-        throw new Error("Authentication failed");
-      }
+      
+      if (!response.ok) throw new Error("Authentication failed");
+      
       const data = await response.json();
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("accessToken", data.token);
@@ -50,5 +49,13 @@ export default function Page() {
     <div className="flex items-center justify-center py-8">
       <div className="animate-pulse">正在处理 GitHub 登录...</div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-8">加载中...</div>}>
+      <CallbackHandler />
+    </Suspense>
   );
 }
